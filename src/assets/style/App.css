@@ -1,0 +1,58 @@
+body {
+    background-color: rgb(248, 249, 250) !important;
+}
+.avatar {
+    border-radius: 100%;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    width: 2.5rem;
+}
+.headerName {
+    float: left;
+    padding-top: 0.4rem;
+    margin-right: 10px;
+}
+.headerProfileBtn {
+    color: black !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+.headerProfileBtn::after {
+    content: none !important;
+}
+.landingPageContainer {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+.landingPageContainer:nth-child(even) {
+    background-color: white;
+    width: 100%;
+}
+.registrieren {
+    width: 24rem;
+    max-width: 100%;
+    background-color: white;
+    margin: auto;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    border-radius: 30px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+}
+.registrierenHeadline {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.toastErrorBorder {
+    border-color: red !important;
+}
+.toastError {
+    background-color: red !important;
+    color: white !important;
+}
+.headerLink {
+    color: black !important;
+    text-decoration: none !important;
+}

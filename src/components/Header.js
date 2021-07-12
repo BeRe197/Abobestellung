@@ -32,6 +32,9 @@ export class Header extends Component {
                 <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="mr-auto">
+                        <Link to="/konfigurator">
+                            Produkt
+                        </Link>
                     </Nav>
                     <Nav>
                         {
@@ -63,7 +66,8 @@ export class Header extends Component {
                                         <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
                                         <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
                                         <Dropdown.Divider/>
-                                        <Dropdown.Item><Link className="headerLink" to="/abmelden">Abmelden</Link></Dropdown.Item>
+                                        <Dropdown.Item><Link className="headerLink"
+                                                             to="/abmelden">Abmelden</Link></Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
                         }

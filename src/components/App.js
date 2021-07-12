@@ -5,6 +5,7 @@ import Header from './Header'
 import LandingPage from "./LandingPage";
 import Registrieren from "./Registrieren";
 import Login from "./Login";
+import Step1Delivery from "./configurator/Step1Delivery";
 
 import '../assets/style/App.css'
 
@@ -16,14 +17,14 @@ export class App extends Component {
         this.handleLogOut = this.handleLogOut.bind(this)
         this.state = {
             isLoggedIn: false,
-            userName: "",
+            user: {email: ""},
         }
     }
 
-    handleLogIn(userName) {
+    handleLogIn(user) {
         this.setState({
             isLoggedIn: true,
-            userName: userName,
+            user: user,
         })
         // TODO: Check from where the login form was called and route correctly back
         this.props.history.push(`/`)
@@ -32,7 +33,7 @@ export class App extends Component {
     handleLogOut() {
         this.setState({
             isLoggedIn: false,
-            userName: "",
+            user: {email: ""},
         })
         this.props.history.push(`/`)
         return null
@@ -40,12 +41,15 @@ export class App extends Component {
 
     render() {
 
-        const {isLoggedIn, userName} = this.state
+        const {isLoggedIn, user} = this.state
 
         return (
             <>
-                <Header isLoggedIn={isLoggedIn} userName={userName}/>
+                <Header isLoggedIn={isLoggedIn} userName={user.email}/>
                 <Switch>
+                    <Route exact path="/konfigurator">
+                        <Step1Delivery/>
+                    </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>
@@ -56,7 +60,7 @@ export class App extends Component {
                         {this.handleLogOut}
                     </Route>
                     <Route exact path="/">
-                        <LandingPage isLoggedIn={isLoggedIn} userName={userName}/>
+                        <LandingPage isLoggedIn={isLoggedIn} userName={user.email}/>
                     </Route>
                 </Switch>
             </>

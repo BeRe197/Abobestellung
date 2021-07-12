@@ -67,7 +67,7 @@ class Registrieren extends Component {
                     this.setState({
                         signIn: false,
                     })
-                    this.props.handleLogIn(form[8].checked ? form[13].value : form[9].value)
+                    this.props.handleLogIn(newCustomer)
                 } else {
                     this.setState({
                         duplicateEmailAddress: true,

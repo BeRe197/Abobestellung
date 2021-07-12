@@ -45,7 +45,7 @@ class Login extends Component {
                         passwordWrong: true,
                     })
                 } else {
-                    this.props.handleLogIn(form[0].value)
+                    this.props.handleLogIn(erg)
                 }
             })
         }

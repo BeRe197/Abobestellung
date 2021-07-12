@@ -59,7 +59,7 @@ class LandingPage extends Component {
                             In unserem individuellen Abokonfigurator finden Sie bestimmt das wonach Sie suchen.
                         </p>
                         <p>
-                            <Button variant="primary">Konfigurator starten</Button>
+                            <Button variant="primary" onClick={() => {this.props.history.push(`/konfigurator`)}}>Konfigurator starten</Button>
                         </p>
                     </Container>
                 </div>
@@ -71,7 +71,7 @@ class LandingPage extends Component {
                             Konfigurieren Sie Ihr ganz persönliches Abonnement jetzt!
                         </p>
                         <p>
-                            <Button variant="primary">Konfigurator starten</Button>
+                            <Button variant="primary" onClick={() => {this.props.history.push(`/konfigurator`)}}>Konfigurator starten</Button>
                         </p>
                     </Container>
                 </div>

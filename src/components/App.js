@@ -8,6 +8,7 @@ import Login from "./Login";
 import Step1Delivery from "./configurator/Step1Delivery";
 
 import '../assets/style/App.css'
+import Step2Detail from "./configurator/Step2Detail";
 
 export class App extends Component {
 
@@ -80,6 +81,9 @@ export class App extends Component {
                     <Route exact path="/konfigurator">
                         <Step1Delivery loginUser={this.loginUser} user={user} isLoggedIn={isLoggedIn}
                                        changeDeliveryAddress={this.changeDeliveryAddress}/>
+                    </Route>
+                    <Route exact path="/konfigurator/detail">
+                        <Step2Detail/>
                     </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>

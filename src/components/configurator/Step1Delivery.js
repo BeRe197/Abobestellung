@@ -25,6 +25,9 @@ class Step1Delivery extends Component {
         this.toggleUserMissing = this.toggleUserMissing.bind(this)
         this.togglePasswordWrong = this.togglePasswordWrong.bind(this)
         this.onChangeAddress = this.onChangeAddress.bind(this)
+        this.startConfig = this.startConfig.bind(this)
+
+        this.formAddress = React.createRef()
 
         this.state = {
             showModal: false,
@@ -32,6 +35,7 @@ class Step1Delivery extends Component {
             logIn: false,
             userMissing: false,
             passwordWrong: false,
+            validatedAddress: false,
         }
     }
 
@@ -102,9 +106,22 @@ class Step1Delivery extends Component {
         this.props.changeDeliveryAddress(fieldName, fieldVal)
     }
 
+    startConfig(event) {
+        const form = this.formAddress.current
+        event.preventDefault()
+        if (form.checkValidity() === false) {
+            event.stopPropagation()
+        } else {
+            this.props.history.push(`/konfigurator/detail`)
+        }
+        this.setState({
+            validated: true,
+        })
+    }
+
     render() {
 
-        const {showModal, validated, logIn, userMissing, passwordWrong} = this.state
+        const {showModal, validated, logIn, userMissing, passwordWrong, validatedAddress} = this.state
         const {user, isLoggedIn} = this.props
 
         return (
@@ -112,7 +129,7 @@ class Step1Delivery extends Component {
                 <Card>
                     <Card.Img variant="top" className={"productImage"} src={newspaper}/>
                     <Card.Body>
-                        <Card.Title style={{fontSize: "2rem"}}>Gedruckte Zeitung</Card.Title>
+                        <Card.Title style={{fontSize: "2rem"}}>Die Zeitung - Gedruckt</Card.Title>
                         <Card.Text>
                             Wer sich intelligent informieren möchte, liest die Zeitung: gründlich recherchierte Fakten,
                             präzise Analysen, klug geschriebene Kommentare. Eine Zeitung, gemacht von erstklassigen
@@ -131,7 +148,7 @@ class Step1Delivery extends Component {
                             </ul>
                         </ListGroupItem>
                         <ListGroupItem>
-                            <form>
+                            <Form noValidate validated={validatedAddress} ref={this.formAddress}>
                                 <h4 className="deliveryAddress">Lieferadresse</h4>
                                 {
                                     isLoggedIn ?
@@ -154,7 +171,7 @@ class Step1Delivery extends Component {
                                             <div className="headerName">Mit Account fortfahren</div>
                                         </Button>
                                 }
-                                <Form.Group controlId="formGridAddress2">
+                                <Form.Group controlId="formGridAddress">
                                     <Form.Control name="street" required placeholder="Straße"
                                                   value={user.deliveryAddress.street} onChange={this.onChangeAddress}/>
                                     <Form.Control.Feedback type="invalid">
@@ -163,7 +180,7 @@ class Step1Delivery extends Component {
                                 </Form.Group>
 
                                 <Form.Row>
-                                    <Form.Group as={Col} controlId="formGridCity2">
+                                    <Form.Group as={Col} controlId="formGridCity">
                                         <Form.Control required name="city" placeholder="Stadt"
                                                       value={user.deliveryAddress.city}
                                                       onChange={this.onChangeAddress}/>
@@ -172,7 +189,7 @@ class Step1Delivery extends Component {
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
-                                    <Form.Group as={Col} controlId="formGridZip2">
+                                    <Form.Group as={Col} controlId="formGridZip">
                                         <Form.Control required type="number" name="plz"
                                                       placeholder="PLZ" value={user.deliveryAddress.plz}
                                                       onChange={this.onChangeAddress}/>
@@ -182,7 +199,7 @@ class Step1Delivery extends Component {
                                     </Form.Group>
                                 </Form.Row>
 
-                                <Form.Group controlId="formGridState2">
+                                <Form.Group controlId="formGridState">
                                     <Form.Control required name="state" as="select"
                                                   value={user.deliveryAddress.state}
                                                   onChange={this.onChangeAddress}>
@@ -192,21 +209,22 @@ class Step1Delivery extends Component {
                                         <option>Frankreich</option>
                                     </Form.Control>
                                 </Form.Group>
-                            </form>
+                            </Form>
                         </ListGroupItem>
                     </ListGroup>
                     <Card.Footer>
                         <Card>
                             <Card.Body>
                                 <div className="priceTag">
-                                    <div className="priceTagValue">5€</div>
+                                    <div className="priceTagValue">5€*</div>
                                 </div>
                                 <div className="priceTagText">
-                                    Grundpreis
-                                    <Button style={{float: "inline-end"}}>
+                                    Die Zeitung - Gedruckt
+                                    <Button onClick={this.startConfig} style={{float: "inline-end"}}>
                                         Konfigurieren
                                     </Button>
                                 </div>
+                                <p className="priceTagMuted">*Grundpreis</p>
                             </Card.Body>
                         </Card>
                     </Card.Footer>

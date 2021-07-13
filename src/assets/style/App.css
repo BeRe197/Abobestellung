@@ -125,3 +125,16 @@ body {
     width: 100% !important;
     max-width: 100% !important;
 }
+
+.priceTagMuted {
+    transform: translate(0, -50%);
+    position: absolute;
+    top: 70%;
+    left: 0;
+    width: 100%;
+    padding-left: 6rem;
+    font-size: 0.8rem;
+    color: #606060;
+    padding-right: 1.5rem;
+    margin: 0;
+}

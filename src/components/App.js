@@ -15,17 +15,24 @@ export class App extends Component {
         super(props)
         this.handleLogIn = this.handleLogIn.bind(this)
         this.handleLogOut = this.handleLogOut.bind(this)
+        this.loginUser = this.loginUser.bind(this)
+        this.changeDeliveryAddress = this.changeDeliveryAddress.bind(this)
         this.state = {
             isLoggedIn: false,
-            user: {email: ""},
+            user: {
+                email: "",
+                deliveryAddress: {
+                    city: "",
+                    plz: "",
+                    street: "",
+                    state: "",
+                },
+            },
         }
     }
 
     handleLogIn(user) {
-        this.setState({
-            isLoggedIn: true,
-            user: user,
-        })
+        this.loginUser(user)
         // TODO: Check from where the login form was called and route correctly back
         this.props.history.push(`/`)
     }
@@ -33,10 +40,33 @@ export class App extends Component {
     handleLogOut() {
         this.setState({
             isLoggedIn: false,
-            user: {email: ""},
+            user: {
+                email: "",
+                deliveryAddress: {
+                    city: "",
+                    plz: "",
+                    street: "",
+                    state: "",
+                },
+            },
         })
         this.props.history.push(`/`)
         return null
+    }
+
+    loginUser(user) {
+        this.setState({
+            isLoggedIn: true,
+            user: user,
+        })
+    }
+
+    changeDeliveryAddress(field, value) {
+        const newUser = this.state.user
+        newUser.deliveryAddress[field] = value
+        this.setState({
+            user: newUser
+        })
     }
 
     render() {
@@ -48,7 +78,8 @@ export class App extends Component {
                 <Header isLoggedIn={isLoggedIn} userName={user.email}/>
                 <Switch>
                     <Route exact path="/konfigurator">
-                        <Step1Delivery/>
+                        <Step1Delivery loginUser={this.loginUser} user={user} isLoggedIn={isLoggedIn}
+                                       changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>

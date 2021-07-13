@@ -12,7 +12,8 @@ import Modal from "react-bootstrap/Modal";
 
 import newspaper from "../../assets/images/newspaper.jpg"
 import avatar from "../../assets/images/avatar.jpg";
-import Login from "../Login";
+import LoginForm from "../fragment/LoginForm";
+import {readCustomer} from "../../api/Api";
 
 class Step1Delivery extends Component {
 
@@ -20,9 +21,17 @@ class Step1Delivery extends Component {
         super(props);
         this.handleLogIn = this.handleLogIn.bind(this)
         this.handleClose = this.handleClose.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.toggleUserMissing = this.toggleUserMissing.bind(this)
+        this.togglePasswordWrong = this.togglePasswordWrong.bind(this)
+        this.onChangeAddress = this.onChangeAddress.bind(this)
 
         this.state = {
             showModal: false,
+            validated: false,
+            logIn: false,
+            userMissing: false,
+            passwordWrong: false,
         }
     }
 
@@ -38,9 +47,65 @@ class Step1Delivery extends Component {
         })
     }
 
+    handleSubmit(event) {
+        const form = event.currentTarget;
+        event.preventDefault()
+        if (form.checkValidity() === false) {
+            event.stopPropagation()
+        } else {
+            this.setState({
+                logIn: true,
+            })
+
+            readCustomer(form[0].value).then((erg) => {
+                if (erg.customer[0] === undefined) {
+                    this.setState({
+                        logIn: false,
+                        userMissing: true,
+                    })
+                } else if (erg.customer[0].password !== form[1].value) {
+                    this.setState({
+                        logIn: false,
+                        passwordWrong: true,
+                    })
+                } else {
+                    this.props.loginUser(erg.customer[0])
+                    this.setState({
+                        login: false,
+                        showModal: false,
+                    })
+                }
+            })
+        }
+
+        this.setState({
+            validated: true,
+        })
+    }
+
+    toggleUserMissing() {
+        this.setState({
+            userMissing: false,
+        })
+    }
+
+    togglePasswordWrong() {
+        this.setState({
+            passwordWrong: false,
+        })
+    }
+
+    onChangeAddress(event) {
+        let fieldName = event.target.name;
+        let fieldVal = event.target.value;
+
+        this.props.changeDeliveryAddress(fieldName, fieldVal)
+    }
+
     render() {
 
-        const {showModal} = this.state
+        const {showModal, validated, logIn, userMissing, passwordWrong} = this.state
+        const {user, isLoggedIn} = this.props
 
         return (
             <Container style={{paddingTop: "1.5rem"}}>
@@ -68,16 +133,30 @@ class Step1Delivery extends Component {
                         <ListGroupItem>
                             <form>
                                 <h4 className="deliveryAddress">Lieferadresse</h4>
-                                <Button className="headerProfileBtn deliveryLoginBtn" onClick={this.handleLogIn}>
-                                    <img
-                                        alt="Avatar"
-                                        src={avatar}
-                                        className="d-inline-block align-top avatar deliveryAvatar"
-                                    />{' '}
-                                    <div className="headerName">Mit Account fortfahren</div>
-                                </Button>
+                                {
+                                    isLoggedIn ?
+                                        <Button className="headerProfileBtn deliveryLoginBtn">
+                                            <img
+                                                alt="Avatar"
+                                                src={avatar}
+                                                className="d-inline-block align-top avatar deliveryAvatar"
+                                            />{' '}
+                                            <div className="headerName">{user.email}</div>
+                                        </Button>
+                                        :
+                                        <Button className="headerProfileBtn deliveryLoginBtn"
+                                                onClick={this.handleLogIn}>
+                                            <img
+                                                alt="Avatar"
+                                                src={avatar}
+                                                className="d-inline-block align-top avatar deliveryAvatar"
+                                            />{' '}
+                                            <div className="headerName">Mit Account fortfahren</div>
+                                        </Button>
+                                }
                                 <Form.Group controlId="formGridAddress2">
-                                    <Form.Control required placeholder="Straße"/>
+                                    <Form.Control name="street" required placeholder="Straße"
+                                                  value={user.deliveryAddress.street} onChange={this.onChangeAddress}/>
                                     <Form.Control.Feedback type="invalid">
                                         Bitte geben Sie Ihre Straße ein.
                                     </Form.Control.Feedback>
@@ -85,15 +164,18 @@ class Step1Delivery extends Component {
 
                                 <Form.Row>
                                     <Form.Group as={Col} controlId="formGridCity2">
-                                        <Form.Control required name="city" placeholder="Stadt"/>
+                                        <Form.Control required name="city" placeholder="Stadt"
+                                                      value={user.deliveryAddress.city}
+                                                      onChange={this.onChangeAddress}/>
                                         <Form.Control.Feedback type="invalid">
                                             Bitte geben Sie Ihre Stadt ein.
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
                                     <Form.Group as={Col} controlId="formGridZip2">
-                                        <Form.Control required type="number" name="zip"
-                                                      placeholder="PLZ"/>
+                                        <Form.Control required type="number" name="plz"
+                                                      placeholder="PLZ" value={user.deliveryAddress.plz}
+                                                      onChange={this.onChangeAddress}/>
                                         <Form.Control.Feedback type="invalid">
                                             Bitte geben Sie Ihre Postleitzahl ein.
                                         </Form.Control.Feedback>
@@ -102,7 +184,8 @@ class Step1Delivery extends Component {
 
                                 <Form.Group controlId="formGridState2">
                                     <Form.Control required name="state" as="select"
-                                                  defaultValue="Deutschland">
+                                                  value={user.deliveryAddress.state}
+                                                  onChange={this.onChangeAddress}>
                                         <option>Deutschland</option>
                                         <option>Österreich</option>
                                         <option>Schweiz</option>
@@ -134,14 +217,13 @@ class Step1Delivery extends Component {
                         <Modal.Title>Anmelden</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        ...
+                        <LoginForm validated={validated} handleSubmit={this.handleSubmit} logIn={logIn}
+                                   passwordWrong={passwordWrong} togglePasswordWrong={this.togglePasswordWrong}
+                                   toggleUserMissing={this.toggleUserMissing} userMissing={userMissing}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={this.handleClose}>
                             Abbrechen
-                        </Button>
-                        <Button variant="primary" onClick={this.handleClose}>
-                            Anmelden
                         </Button>
                     </Modal.Footer>
                 </Modal>
@@ -150,6 +232,11 @@ class Step1Delivery extends Component {
     }
 }
 
-Step1Delivery.propTypes = {};
+Step1Delivery.propTypes = {
+    loginUser: PropTypes.func.isRequired,
+    user: PropTypes.any,
+    isLoggedIn: PropTypes.bool.isRequired,
+    changeDeliveryAddress: PropTypes.func.isRequired,
+};
 
 export default Step1Delivery;

@@ -1,13 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types'
-import {Link} from 'react-router-dom'
-
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import Spinner from "react-bootstrap/Spinner";
-import Toast from "react-bootstrap/Toast"
 
 import {readCustomer} from '../api/Api'
+import LoginForm from "./fragment/LoginForm";
 
 class Login extends Component {
 
@@ -45,7 +40,7 @@ class Login extends Component {
                         passwordWrong: true,
                     })
                 } else {
-                    this.props.handleLogIn(erg)
+                    this.props.handleLogIn(erg.customer[0])
                 }
             })
         }
@@ -75,55 +70,9 @@ class Login extends Component {
         return (
             <div className={"registrieren"}>
                 <h1 className={"registrierenHeadline"}>Anmelden</h1>
-                <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
-                    <Form.Group controlId="formBasicEmail">
-                        <Form.Control disabled={logIn} required type="email" placeholder="E-Mail-Adresse"/>
-                        <Form.Control.Feedback type="invalid">
-                            Bitte geben Sie Ihre E-Mail-Adresse ein.
-                        </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Form.Group controlId="formBasicPassword">
-                        <Form.Control disabled={logIn} required type="password" placeholder="Passwort"/>
-                        <Form.Control.Feedback type="invalid">
-                            Bitte geben Sie Ihr Passwort ein.
-                        </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Toast className={"toastErrorBorder"} show={userMissing} onClose={this.toggleUserMissing}>
-                        <Toast.Header className={"toastError"}>
-                            <strong className="mr-auto">Fehler</strong>
-                        </Toast.Header>
-                        <Toast.Body>Die eingegebene E-Mail-Adresse ist nicht vorhanden. Wollen Sie sich <Link
-                            to="/registrieren">registrieren</Link>?</Toast.Body>
-                    </Toast>
-
-                    <Toast className={"toastErrorBorder"} show={passwordWrong} onClose={this.togglePasswordWrong}>
-                        <Toast.Header className={"toastError"}>
-                            <strong className="mr-auto">Fehler</strong>
-                        </Toast.Header>
-                        <Toast.Body>Das eingegebe Passwort ist falsch. Bitte versuchen Sie es erneut!</Toast.Body>
-                    </Toast>
-
-                    <Button variant="primary" type="submit" style={{width: "100%"}}>
-                        {
-                            logIn ?
-                                <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="md"
-                                    role="status"
-                                    aria-hidden="true"
-                                />
-                                :
-                                "Anmelden"
-                        }
-                    </Button>
-
-                    <Form.Text muted style={{textAlign: "right"}}>
-                        Sie haben noch keinen User? <Link to="/registrieren">Registrieren</Link>
-                    </Form.Text>
-                </Form>
+                <LoginForm validated={validated} handleSubmit={this.handleSubmit} logIn={logIn}
+                           passwordWrong={passwordWrong} togglePasswordWrong={this.togglePasswordWrong}
+                           toggleUserMissing={this.toggleUserMissing} userMissing={userMissing}/>
             </div>
         );
     }

@@ -9,6 +9,7 @@ import Card from "react-bootstrap/Card";
 import {Grid, Typography, Switch} from "@material-ui/core";
 import DateFnsUtils from "@date-io/date-fns";
 import {MuiPickersUtilsProvider, KeyboardDatePicker} from "@material-ui/pickers";
+import {FormControl, InputGroup} from "react-bootstrap";
 
 class Step2Detail extends Component {
 
@@ -89,12 +90,15 @@ class Step2Detail extends Component {
     render() {
 
         const {checkedYearly, period, price, currentPriceID, aboWeekend} = this.state
-        const {startDate, handleStartDateChange} = this.props
+        const {startDate, handleStartDateChange, hint, handleChangeHint} = this.props
+
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 2);
 
         return (
             <div className="detailVersionBackground">
-                <Container style={{paddingTop: "4rem"}}>
-                    <h2 style={{paddingBottom: "2rem", textAlign: "center"}}>Wählen Sie die Ausgabe, die am besten zu
+                <Container>
+                    <h2 className="detailVersionChapter">Wählen Sie die Ausgabe, die am besten zu
                         Ihnen passt:</h2>
                     <Typography component="div">
                         <Grid component="label" container alignItems="center" justifyContent="center" spacing={0}>
@@ -117,78 +121,76 @@ class Step2Detail extends Component {
                         </Grid>
                     </Typography>
                     <div className="detailVersionList">
-                        <div className="detailVersionListInner">
-                            <Card ref={this.cardSport} className="detailVersion">
-                                <Card.Header className="detailVersionHeader">
-                                    SPORTVERSION<br/>
-                                    <span><span
-                                        className="detailVersionHeaderValue">{aboWeekend ? Math.round(price.sport[currentPriceID] * 0.6) : price.sport[currentPriceID]}</span>€/{period}</span>
-                                </Card.Header>
-                                <ListGroup variant="flush" style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
-                                    <ListGroup.Item className="detailVersionItem">Globaler Teil inkl. ausgewählter
-                                        Lokalteil</ListGroup.Item>
-                                    <ListGroup.Item className="detailVersionItem">Geliefert durch
-                                        Austräger</ListGroup.Item>
-                                    <ListGroup.Item
-                                        className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
-                                    <ListGroup.Item
-                                        className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
-                                </ListGroup>
-                                <Card.Footer className="detailVersionFooter">
-                                    <Button onClick={() => (this.handleVariantSelect("sport"))}>Auswählen</Button>
-                                </Card.Footer>
-                            </Card>
-                            <Card ref={this.cardStadt} className="detailVersion recommended">
-                                <Card.Header className="detailVersionHeader">
-                                    STADTAUSGABE<br/>
-                                    <span><span
-                                        className="detailVersionHeaderValue">{aboWeekend ? Math.round(price.stadt[currentPriceID] * 0.6) : price.stadt[currentPriceID]}</span>€/{period}</span>
-                                </Card.Header>
-                                <ListGroup variant="flush" style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
-                                    <ListGroup.Item className="detailVersionItem">Globaler Teil inkl. ausgewählter
-                                        Lokalteil</ListGroup.Item>
-                                    <ListGroup.Item className="detailVersionItem">Geliefert durch
-                                        Austräger</ListGroup.Item>
-                                    <ListGroup.Item
-                                        className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
-                                    <ListGroup.Item
-                                        className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
-                                </ListGroup>
-                                <Card.Footer className="detailVersionFooter">
-                                    <Button onClick={() => (this.handleVariantSelect("stadt"))}>Auswählen</Button>
-                                </Card.Footer>
-                            </Card>
-                            <Card ref={this.cardLand} className="detailVersion">
-                                <Card.Header className="detailVersionHeader">
-                                    LANDKREISINFO<br/>
-                                    <span><span
-                                        className="detailVersionHeaderValue">{aboWeekend ? Math.round(price.land[currentPriceID] * 0.6) : price.land[currentPriceID]}</span>€/{period}</span>
-                                </Card.Header>
-                                <ListGroup variant="flush" style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
-                                    <ListGroup.Item className="detailVersionItem">Globaler Teil inkl. ausgewählter
-                                        Lokalteil</ListGroup.Item>
-                                    <ListGroup.Item className="detailVersionItem">Geliefert durch
-                                        Austräger</ListGroup.Item>
-                                    <ListGroup.Item
-                                        className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
-                                    <ListGroup.Item
-                                        className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
-                                </ListGroup>
-                                <Card.Footer className="detailVersionFooter">
-                                    <Button onClick={() => (this.handleVariantSelect("land"))}>Auswählen</Button>
-                                </Card.Footer>
-                            </Card>
-                        </div>
+                        <Card ref={this.cardSport} className="detailVersion">
+                            <Card.Header className="detailVersionHeader">
+                                SPORTVERSION<br/>
+                                <span><span
+                                    className="detailVersionHeaderValue">{aboWeekend ? Math.round(price.sport[currentPriceID] * 0.6) : price.sport[currentPriceID]}</span>€/{period}</span>
+                            </Card.Header>
+                            <ListGroup variant="flush" style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
+                                <ListGroup.Item className="detailVersionItem">Globaler Teil inkl. ausgewählter
+                                    Lokalteil</ListGroup.Item>
+                                <ListGroup.Item className="detailVersionItem">Geliefert durch
+                                    Austräger</ListGroup.Item>
+                                <ListGroup.Item
+                                    className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
+                                <ListGroup.Item
+                                    className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
+                            </ListGroup>
+                            <Card.Footer className="detailVersionFooter">
+                                <Button onClick={() => (this.handleVariantSelect("sport"))}>Auswählen</Button>
+                            </Card.Footer>
+                        </Card>
+                        <Card ref={this.cardStadt} className="detailVersion recommended">
+                            <Card.Header className="detailVersionHeader">
+                                STADTAUSGABE<br/>
+                                <span><span
+                                    className="detailVersionHeaderValue">{aboWeekend ? Math.round(price.stadt[currentPriceID] * 0.6) : price.stadt[currentPriceID]}</span>€/{period}</span>
+                            </Card.Header>
+                            <ListGroup variant="flush" style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
+                                <ListGroup.Item className="detailVersionItem">Globaler Teil inkl. ausgewählter
+                                    Lokalteil</ListGroup.Item>
+                                <ListGroup.Item className="detailVersionItem">Geliefert durch
+                                    Austräger</ListGroup.Item>
+                                <ListGroup.Item
+                                    className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
+                                <ListGroup.Item
+                                    className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
+                            </ListGroup>
+                            <Card.Footer className="detailVersionFooter">
+                                <Button onClick={() => (this.handleVariantSelect("stadt"))}>Auswählen</Button>
+                            </Card.Footer>
+                        </Card>
+                        <Card ref={this.cardLand} className="detailVersion">
+                            <Card.Header className="detailVersionHeader">
+                                LANDKREISINFO<br/>
+                                <span><span
+                                    className="detailVersionHeaderValue">{aboWeekend ? Math.round(price.land[currentPriceID] * 0.6) : price.land[currentPriceID]}</span>€/{period}</span>
+                            </Card.Header>
+                            <ListGroup variant="flush" style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
+                                <ListGroup.Item className="detailVersionItem">Globaler Teil inkl. ausgewählter
+                                    Lokalteil</ListGroup.Item>
+                                <ListGroup.Item className="detailVersionItem">Geliefert durch
+                                    Austräger</ListGroup.Item>
+                                <ListGroup.Item
+                                    className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
+                                <ListGroup.Item
+                                    className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
+                            </ListGroup>
+                            <Card.Footer className="detailVersionFooter">
+                                <Button onClick={() => (this.handleVariantSelect("land"))}>Auswählen</Button>
+                            </Card.Footer>
+                        </Card>
                     </div>
                     <div>
-                        <h2>Wann soll Ihr Abo beginnen?</h2>
+                        <h2 className="detailVersionChapter">Wann soll Ihr Abo beginnen?</h2>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
                             <Grid container justifyContent="space-around">
                                 <KeyboardDatePicker
                                     disableToolbar
-                                    minDate={new Date()}
+                                    minDate={minDate}
                                     variant="inline"
-                                    format="MM/dd/yyyy"
+                                    format="dd.MM.yyyy"
                                     margin="normal"
                                     id="date-picker-inline"
                                     label="Date picker inline"
@@ -200,6 +202,13 @@ class Step2Detail extends Component {
                                 />
                             </Grid>
                         </MuiPickersUtilsProvider>
+                    </div>
+                    <div>
+                        <h2 className="detailVersionChapter">Haben Sie noch einen Hinweis für uns?</h2>
+                        <InputGroup>
+                            <FormControl as="textarea" value={hint} onChange={handleChangeHint}
+                                         aria-label="With textarea"/>
+                        </InputGroup>
                     </div>
                 </Container>
             </div>

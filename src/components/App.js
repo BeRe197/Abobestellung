@@ -19,6 +19,7 @@ export class App extends Component {
         this.loginUser = this.loginUser.bind(this)
         this.changeDeliveryAddress = this.changeDeliveryAddress.bind(this)
         this.handleStartDateChange = this.handleStartDateChange.bind(this)
+        this.handleChangeHint = this.handleChangeHint.bind(this)
 
         this.state = {
             isLoggedIn: false,
@@ -53,6 +54,7 @@ export class App extends Component {
                 },
             },
             startDate: "",
+            hint: "",
         })
         this.props.history.push(`/`)
         return null
@@ -79,9 +81,15 @@ export class App extends Component {
         })
     }
 
+    handleChangeHint(event){
+        this.setState({
+            hint: event.target.value,
+        })
+    }
+
     render() {
 
-        const {isLoggedIn, user, startDate} = this.state
+        const {isLoggedIn, user, startDate, hint} = this.state
 
         return (
             <>
@@ -92,7 +100,7 @@ export class App extends Component {
                                        changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
                     <Route exact path="/konfigurator/detail">
-                        <Step2Detail startDate={startDate} handleStartDateChange={this.handleStartDateChange}/>
+                        <Step2Detail startDate={startDate} handleStartDateChange={this.handleStartDateChange} hint={hint} handleChangeHint={this.handleChangeHint}/>
                     </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>

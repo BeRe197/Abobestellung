@@ -152,16 +152,9 @@ body {
 
 .detailVersionList {
     text-align: center;
-    position: relative;
     width: 100%;
-}
-
-.detailVersionListInner {
-    transform: translate(-50%, -0);
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 58rem;
+    display: flex;
+    justify-content: center;
 }
 
 .detailVersionHeader {
@@ -201,4 +194,10 @@ body {
     width: 100%;
     background-color: #173d5026;
     height: 95.1vh;
+}
+
+.detailVersionChapter {
+    padding-bottom: 2rem;
+    padding-top: 4rem;
+    text-align: center;
 }

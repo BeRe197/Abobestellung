@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {withRouter} from 'react-router-dom'
+
 import Container from 'react-bootstrap/Container'
 import Image from 'react-bootstrap/Image'
 import Button from 'react-bootstrap/Button'
@@ -59,7 +61,9 @@ class LandingPage extends Component {
                             In unserem individuellen Abokonfigurator finden Sie bestimmt das wonach Sie suchen.
                         </p>
                         <p>
-                            <Button variant="primary" onClick={() => {this.props.history.push(`/konfigurator`)}}>Konfigurator starten</Button>
+                            <Button variant="primary" onClick={() => {
+                                this.props.history.push(`/konfigurator`)
+                            }}>Konfigurator starten</Button>
                         </p>
                     </Container>
                 </div>
@@ -71,7 +75,9 @@ class LandingPage extends Component {
                             Konfigurieren Sie Ihr ganz persönliches Abonnement jetzt!
                         </p>
                         <p>
-                            <Button variant="primary" onClick={() => {this.props.history.push(`/konfigurator`)}}>Konfigurator starten</Button>
+                            <Button variant="primary" onClick={() => {
+                                this.props.history.push(`/konfigurator`)
+                            }}>Konfigurator starten</Button>
                         </p>
                     </Container>
                 </div>
@@ -86,4 +92,4 @@ LandingPage.propTypes = {
     userName: PropTypes.string.isRequired,
 };
 
-export default LandingPage;
+export default withRouter(LandingPage);

@@ -18,6 +18,8 @@ export class App extends Component {
         this.handleLogOut = this.handleLogOut.bind(this)
         this.loginUser = this.loginUser.bind(this)
         this.changeDeliveryAddress = this.changeDeliveryAddress.bind(this)
+        this.handleStartDateChange = this.handleStartDateChange.bind(this)
+
         this.state = {
             isLoggedIn: false,
             user: {
@@ -50,6 +52,7 @@ export class App extends Component {
                     state: "",
                 },
             },
+            startDate: "",
         })
         this.props.history.push(`/`)
         return null
@@ -70,9 +73,15 @@ export class App extends Component {
         })
     }
 
+    handleStartDateChange(date) {
+        this.setState({
+            startDate: date,
+        })
+    }
+
     render() {
 
-        const {isLoggedIn, user} = this.state
+        const {isLoggedIn, user, startDate} = this.state
 
         return (
             <>
@@ -83,7 +92,7 @@ export class App extends Component {
                                        changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
                     <Route exact path="/konfigurator/detail">
-                        <Step2Detail/>
+                        <Step2Detail startDate={startDate} handleStartDateChange={this.handleStartDateChange}/>
                     </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>

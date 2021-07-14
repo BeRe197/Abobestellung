@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {withRouter} from 'react-router-dom'
 
 import Container from "react-bootstrap/Container";
 import Card from "react-bootstrap/Card";
@@ -115,7 +116,7 @@ class Step1Delivery extends Component {
             this.props.history.push(`/konfigurator/detail`)
         }
         this.setState({
-            validated: true,
+            validatedAddress: true,
         })
     }
 
@@ -257,4 +258,4 @@ Step1Delivery.propTypes = {
     changeDeliveryAddress: PropTypes.func.isRequired,
 };
 
-export default Step1Delivery;
+export default withRouter(Step1Delivery);

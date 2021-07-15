@@ -190,14 +190,7 @@ body {
     color: darkorange !important;
 }
 
-.detailVersionBackground {
-    width: 100%;
-    background-color: #173d5026;
-    height: 95.1vh;
-}
-
 .detailVersionChapter {
     padding-bottom: 2rem;
-    padding-top: 4rem;
     text-align: center;
 }

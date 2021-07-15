@@ -21,6 +21,9 @@ export class App extends Component {
         this.handleStartDateChange = this.handleStartDateChange.bind(this)
         this.handleChangeHint = this.handleChangeHint.bind(this)
 
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 2);
+
         this.state = {
             isLoggedIn: false,
             user: {
@@ -32,6 +35,8 @@ export class App extends Component {
                     state: "",
                 },
             },
+            startDate: minDate,
+            hint: "",
         }
     }
 
@@ -42,6 +47,9 @@ export class App extends Component {
     }
 
     handleLogOut() {
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 2);
+
         this.setState({
             isLoggedIn: false,
             user: {
@@ -53,7 +61,7 @@ export class App extends Component {
                     state: "",
                 },
             },
-            startDate: "",
+            startDate: minDate,
             hint: "",
         })
         this.props.history.push(`/`)

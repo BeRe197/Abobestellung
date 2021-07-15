@@ -132,7 +132,7 @@ class Step1Delivery extends Component {
                     <Card.Body>
                         <Card.Title style={{fontSize: "2rem"}}>Die Zeitung - Gedruckt</Card.Title>
                         <Card.Text>
-                            Wer sich intelligent informieren möchte, liest die Zeitung: gründlich recherchierte Fakten,
+                            Wer sich intelligent informieren möchte, liest <em>die Zeitung</em>: gründlich recherchierte Fakten,
                             präzise Analysen, klug geschriebene Kommentare. Eine Zeitung, gemacht von erstklassigen
                             Journalisten für Leser mit höchsten Ansprüchen.
                         </Card.Text>

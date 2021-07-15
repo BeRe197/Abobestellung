@@ -194,3 +194,13 @@ body {
     padding-bottom: 2rem;
     text-align: center;
 }
+
+.loadingSpinner {
+    width: 8rem !important;
+    height: 8rem !important;
+}
+
+.tabCheckout:hover {
+    cursor: default !important;
+    border: none !important;
+}

@@ -9,6 +9,7 @@ import Step1Delivery from "./configurator/Step1Delivery";
 
 import '../assets/style/App.css'
 import Step2Detail from "./configurator/Step2Detail";
+import Step3Checkout from "./configurator/Step3Checkout";
 
 export class App extends Component {
 
@@ -20,6 +21,7 @@ export class App extends Component {
         this.changeDeliveryAddress = this.changeDeliveryAddress.bind(this)
         this.handleStartDateChange = this.handleStartDateChange.bind(this)
         this.handleChangeHint = this.handleChangeHint.bind(this)
+        this.onAboCreate = this.onAboCreate.bind(this)
 
         const minDate = new Date();
         minDate.setDate(minDate.getDate() + 2);
@@ -34,16 +36,27 @@ export class App extends Component {
                     street: "",
                     state: "",
                 },
+                billingAddress: {
+                    city: "",
+                    plz: "",
+                    street: "",
+                    state: "",
+                },
             },
             startDate: minDate,
             hint: "",
+            abo: {},
         }
     }
 
     handleLogIn(user) {
         this.loginUser(user)
         // TODO: Check from where the login form was called and route correctly back
-        this.props.history.push(`/`)
+        if (Object.keys(this.state.abo).length === 0 && this.state.abo.constructor === Object) {
+            this.props.history.push(`/`)
+        } else {
+            this.props.history.push(`/konfigurator/checkout`)
+        }
     }
 
     handleLogOut() {
@@ -60,9 +73,13 @@ export class App extends Component {
                     street: "",
                     state: "",
                 },
+                billingAddress: {
+                    city: "",
+                    plz: "",
+                    street: "",
+                    state: "",
+                },
             },
-            startDate: minDate,
-            hint: "",
         })
         this.props.history.push(`/`)
         return null
@@ -89,15 +106,21 @@ export class App extends Component {
         })
     }
 
-    handleChangeHint(event){
+    handleChangeHint(event) {
         this.setState({
             hint: event.target.value,
         })
     }
 
+    onAboCreate(abo) {
+        this.setState({
+            abo: abo,
+        })
+    }
+
     render() {
 
-        const {isLoggedIn, user, startDate, hint} = this.state
+        const {isLoggedIn, user, startDate, hint, abo} = this.state
 
         return (
             <>
@@ -108,7 +131,12 @@ export class App extends Component {
                                        changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
                     <Route exact path="/konfigurator/detail">
-                        <Step2Detail startDate={startDate} handleStartDateChange={this.handleStartDateChange} hint={hint} handleChangeHint={this.handleChangeHint}/>
+                        <Step2Detail startDate={startDate} handleStartDateChange={this.handleStartDateChange}
+                                     hint={hint} handleChangeHint={this.handleChangeHint} user={user}
+                                     isLoggedIn={isLoggedIn} onAboCreate={this.onAboCreate}/>
+                    </Route>
+                    <Route exact path="/konfigurator/checkout">
+                        <Step3Checkout user={user} abo={abo}/>
                     </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>

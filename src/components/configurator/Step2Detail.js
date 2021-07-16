@@ -194,7 +194,7 @@ class Step2Detail extends Component {
             cid: this.props.isLoggedIn ? this.props.user.id : 0,
             created: new Date().toLocaleString().split(",")[0],
             startabodate: this.props.startDate.toLocaleString().split(",")[0],
-            endabodate: (this.props.startDate.getFullYear() + 1).toLocaleString().split(",")[0],
+            endabodate: "",
             dataprivacyaccepted: false,
             abotype: "Printed",              //Printed or E-paper or Website
             deliverymethod: this.state.price[this.state.selectedAbo].isAvailable ? "Delivery man" : "Post",          //Post or Delivery man

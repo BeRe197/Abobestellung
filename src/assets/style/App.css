@@ -204,3 +204,18 @@ body {
     cursor: default !important;
     border: none !important;
 }
+
+.toastSuccess {
+    position: sticky !important;
+    bottom: 1rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    background-color: #5fb75f !important;
+    color: white !important;
+}
+
+.toastSuccess > .toast-header {
+    background-color: transparent !important;
+    border: none !important;
+    color: white !important;
+}

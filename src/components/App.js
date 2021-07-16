@@ -138,6 +138,9 @@ export class App extends Component {
                     <Route exact path="/konfigurator/checkout">
                         <Step3Checkout user={user} abo={abo}/>
                     </Route>
+                    <Route exact path="/checkout">
+                        <LandingPage isLoggedIn={isLoggedIn} userName={user.email} showToast/>
+                    </Route>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>

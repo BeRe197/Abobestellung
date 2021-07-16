@@ -12,6 +12,9 @@ import ListGroup from "react-bootstrap/ListGroup";
 import Modal from "react-bootstrap/Modal";
 import {saveAboForCustomer} from "../../api/Api";
 import Spinner from "react-bootstrap/Spinner";
+import BillingAddressForm from "../fragment/BillingAddressForm";
+import Toast from "react-bootstrap/Toast";
+import {ImCheckmark} from "react-icons/all";
 
 class Step3Checkout extends Component {
 
@@ -28,8 +31,15 @@ class Step3Checkout extends Component {
         this.openModal = this.openModal.bind(this)
         this.handleClose = this.handleClose.bind(this)
         this.handleCheckoutAbo = this.handleCheckoutAbo.bind(this)
+        this.handleTabChangeDirectDebit = this.handleTabChangeDirectDebit.bind(this)
+        this.handleCloseDelAddress = this.handleCloseDelAddress.bind(this)
+        this.handleUserUpdate = this.handleUserUpdate.bind(this)
+        this.handleCloseDelAddressToastSuccess = this.handleCloseDelAddressToastSuccess.bind(this)
+        this.handleCloseDelAddressToastError = this.handleCloseDelAddressToastError.bind(this)
+        this.openChangeDelAddress = this.openChangeDelAddress.bind(this)
 
         this.formDataSec = React.createRef()
+        this.formIBAN = React.createRef()
 
         this.state = {
             key: "#1",
@@ -39,7 +49,13 @@ class Step3Checkout extends Component {
             AccountHolder: this.props.user.firstname + " " + this.props.user.lastname,
             showModal: false,
             validatedDataSecurity: false,
+            validatedIBAN: false,
             saving: false,
+            showModalDelAddress: false,
+            updateDelAddress: false,
+            validatedDelAddress: false,
+            showDelAddressToastSuccess: false,
+            showDelAddressToastError: false,
         }
     }
 
@@ -47,6 +63,19 @@ class Step3Checkout extends Component {
         this.setState({
             key: key,
         })
+    }
+
+    handleTabChangeDirectDebit(key) {
+        if (this.state.lastschrift) {
+            this.setState({
+                validatedIBAN: true,
+            })
+            if (this.formIBAN.current.checkValidity() === true) {
+                this.handleTabChange(key)
+            }
+        } else {
+            this.handleTabChange(key)
+        }
     }
 
     handlePaymentChange() {
@@ -146,6 +175,26 @@ class Step3Checkout extends Component {
         }
     }
 
+    handleCloseDelAddress() {
+        if (!this.state.saving) { //TODO:
+            this.setState({
+                showModalDelAddress: false,
+            })
+        }
+    }
+
+    handleCloseDelAddressToastSuccess() {
+        this.setState({
+            showDelAddressToastSuccess: false,
+        })
+    }
+
+    handleCloseDelAddressToastError() {
+        this.setState({
+            showDelAddressToastError: false,
+        })
+    }
+
     handleCheckoutAbo() {
         this.setState({
             validatedDataSecurity: true,
@@ -173,9 +222,70 @@ class Step3Checkout extends Component {
         }
     }
 
+    handleUserUpdate(event) {
+        this.setState({
+            validatedDelAddress: true,
+        })
+        const form = event.currentTarget;
+        if (form.checkValidity() === false) {
+            event.stopPropagation()
+        } else {
+            this.setState({
+                updateDelAddress: true,
+            })
+            let newUser = this.props.user
+            newUser.billingAddress.street = form[0].value
+            newUser.billingAddress.city = form[1].value
+            newUser.billingAddress.plz = form[2].value
+            newUser.billingAddress.state = form[3].value
+
+            this.props.onCustomerUpdate(newUser)
+                .then((response) => {
+                    console.log("User updated " + Object.values(response))
+                    this.setState({
+                        showModalDelAddress: false,
+                        updateDelAddress: false,
+                        showDelAddressToastSuccess: true,
+                        validatedDelAddress: false,
+                    })
+                })
+                .catch((err) => {
+                    console.log('There was an error:' + err)
+                    this.setState({
+                        showModalDelAddress: false,
+                        updateDelAddress: false,
+                        showDelAddressToastError: true,
+                        validatedDelAddress: false,
+                    })
+                })
+        }
+        event.preventDefault()
+    }
+
+    openChangeDelAddress() {
+        this.setState({
+            showModalDelAddress: true,
+        })
+    }
+
     render() {
 
-        const {key, lastschrift, IBAN, BIC, AccountHolder, showModal, validatedDataSecurity, saving} = this.state
+        const {
+            key,
+            lastschrift,
+            IBAN,
+            BIC,
+            AccountHolder,
+            showModal,
+            validatedDataSecurity,
+            validatedIBAN,
+            saving,
+            showModalDelAddress,
+            updateDelAddress,
+            validatedDelAddress,
+            showDelAddressToastSuccess,
+            showDelAddressToastError,
+        } = this.state
         const {user, abo} = this.props
 
         return (
@@ -184,6 +294,8 @@ class Step3Checkout extends Component {
                     <h2 className="detailVersionChapter">Sie haben es gleich geschafft!</h2>
                     <Tabs activeKey={key} id="checkout-tabs" className="mb-3">
                         <Tab tabClassName="tabCheckout" eventKey="#1" title="Rechnungsadresse">
+                            <Button className="btnEditAddress" onClick={this.openChangeDelAddress} variant="primary">Rechnungsadresse
+                                bearbeiten</Button>
                             <Form>
                                 <Form.Group controlId="formGridAddress2">
                                     <Form.Control required disabled defaultValue={user.billingAddress.street}
@@ -240,7 +352,7 @@ class Step3Checkout extends Component {
                             </Typography>
                             {
                                 lastschrift ?
-                                    <Form>
+                                    <Form noValidate validated={validatedIBAN} ref={this.formIBAN}>
                                         <Form.Group controlId="formGridIBAN">
                                             <Form.Control name="IBAN" value={IBAN}
                                                           onChange={this.handleLastschriftInfoChange} required
@@ -271,7 +383,7 @@ class Step3Checkout extends Component {
                             <Button variant="outline-secondary" style={{marginRight: "10px"}}
                                     onClick={() => (this.handleTabChange("#1"))}>Zurück</Button>
                             <Button variant="outline-primary"
-                                    onClick={() => (this.handleTabChange("#3"))}>Weiter</Button>
+                                    onClick={() => (this.handleTabChangeDirectDebit("#3"))}>Weiter</Button>
                         </Tab>
                         <Tab tabClassName="tabCheckout" eventKey="#3" title="Übersicht">
                             <Row>
@@ -377,11 +489,47 @@ class Step3Checkout extends Component {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                <Modal show={showModalDelAddress} onHide={this.handleCloseDelAddress} backdrop="static" size="lg"
+                       aria-labelledby="contained-modal-title-vcenter" centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Rechnungsadresse aktualisieren</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{textAlign: "center"}}>
+                        <BillingAddressForm validated={validatedDelAddress} handleSubmit={this.handleUserUpdate}
+                                            update={updateDelAddress} user={user}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" disabled={saving} onClick={this.handleCloseDelAddress}>
+                            Abbrechen
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                <Toast className="p-3 toastSuccess" onClose={this.handleCloseDelAddressToastSuccess}
+                       position={"bottom-center"} bg="success" show={showDelAddressToastSuccess} delay={3000} autohide>
+                    <Toast.Header closeButton={false}>
+                        <ImCheckmark style={{marginRight: "0.4rem"}}/>
+                        <strong className="me-auto">Erfolgreich</strong>
+                    </Toast.Header>
+                    <Toast.Body>Ihre Rechnungsadresse wurde erfolgreich aktualisiert!</Toast.Body>
+                </Toast>
+                <Toast className="p-3 toastError" onClose={this.handleCloseDelAddressToastError}
+                       position={"bottom-center"} show={showDelAddressToastError} delay={3000} autohide>
+                    <Toast.Header closeButton={false}>
+                        <ImCheckmark style={{marginRight: "0.4rem"}}/>
+                        <strong className="me-auto">Fehlgeschlagen</strong>
+                    </Toast.Header>
+                    <Toast.Body>Ihre Rechnungsadresse wurde leider nicht aktualisiert. Bitte versuchen Sie es später
+                        erneut!</Toast.Body>
+                </Toast>
             </div>
         );
     }
 }
 
-Step3Checkout.propTypes = {};
+Step3Checkout.propTypes = {
+    user: PropTypes.object.isRequired,
+    abo: PropTypes.object.isRequired,
+    onCustomerUpdate: PropTypes.func.isRequired,
+};
 
 export default withRouter(Step3Checkout);

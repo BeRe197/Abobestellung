@@ -10,6 +10,7 @@ import Step1Delivery from "./configurator/Step1Delivery";
 import '../assets/style/App.css'
 import Step2Detail from "./configurator/Step2Detail";
 import Step3Checkout from "./configurator/Step3Checkout";
+import {updateCustomer} from "../api/Api";
 
 export class App extends Component {
 
@@ -22,6 +23,7 @@ export class App extends Component {
         this.handleStartDateChange = this.handleStartDateChange.bind(this)
         this.handleChangeHint = this.handleChangeHint.bind(this)
         this.onAboCreate = this.onAboCreate.bind(this)
+        this.onCustomerUpdate = this.onCustomerUpdate.bind(this)
 
         const minDate = new Date();
         minDate.setDate(minDate.getDate() + 2);
@@ -95,8 +97,23 @@ export class App extends Component {
     changeDeliveryAddress(field, value) {
         const newUser = this.state.user
         newUser.deliveryAddress[field] = value
-        this.setState({
-            user: newUser
+        this.onCustomerUpdate(newUser)
+            .then((response) => {
+                console.log("User updated " + Object.values(response))
+            })
+            .catch(err => console.log('There was an error:' + err))
+    }
+
+    onCustomerUpdate(updatedCustomer) {
+        return new Promise((resolve, reject) => {
+            updateCustomer(updatedCustomer).then((erg) => {
+                this.setState({
+                    user: updatedCustomer
+                })
+                resolve(erg)
+            }, () => {
+                reject("Error while updating user")
+            })
         })
     }
 
@@ -136,7 +153,7 @@ export class App extends Component {
                                      isLoggedIn={isLoggedIn} onAboCreate={this.onAboCreate}/>
                     </Route>
                     <Route exact path="/konfigurator/checkout">
-                        <Step3Checkout user={user} abo={abo}/>
+                        <Step3Checkout user={user} abo={abo} onCustomerUpdate={this.onCustomerUpdate}/>
                     </Route>
                     <Route exact path="/checkout">
                         <LandingPage isLoggedIn={isLoggedIn} userName={user.email} showToast/>

@@ -219,3 +219,24 @@ body {
     border: none !important;
     color: white !important;
 }
+
+.toastError {
+    position: sticky !important;
+    bottom: 1rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    background-color: #ff474c !important;
+    color: white !important;
+}
+
+.toastError > .toast-header {
+    background-color: transparent !important;
+    border: none !important;
+    color: white !important;
+}
+
+.btnEditAddress {
+    margin-left: auto;
+    display: block !important;
+    margin-bottom: 1rem;
+}

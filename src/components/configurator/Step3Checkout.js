@@ -218,8 +218,8 @@ class Step3Checkout extends Component {
         let newAbo = this.props.abo
         newAbo.paymenttype = this.state.lastschrift ? "Direct Debit" : "Invoice"
         if (this.state.lastschrift) {
-            newAbo.iban = this.state.IBAN
-            newAbo.bic = this.state.BIC
+            newAbo.IBAN = this.state.IBAN
+            newAbo.BIC = this.state.BIC
             newAbo.AccountHolder = this.state.AccountHolder
         }
 

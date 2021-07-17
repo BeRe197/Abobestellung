@@ -62,7 +62,7 @@ class Abonnement extends Component {
     }
 
     getPaymentType() {
-        if (this.props.abo.lastschrift === "Direct Debit") {
+        if (this.props.abo.paymenttype === "Direct Debit") {
             return (
                 <>
                     <p>Per <b>Lastschrift</b></p>

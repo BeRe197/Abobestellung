@@ -46,11 +46,11 @@ class Abonnements extends Component {
                         </Container>
                         :
                         abos.map((abo, index) => (
-                            <div className={"landingPageContainer"}>
+                            <div key={abo.id} className={"landingPageContainer"}>
                                 <Container>
                                     <h2>Abonnement {index + 1}</h2>
                                     <br/>
-                                    <Abonnement key={abo.id} abo={abo} allowCancel={true}/>
+                                    <Abonnement abo={abo} allowCancel={true}/>
                                 </Container>
                             </div>
                         ))

@@ -30,9 +30,7 @@ export class App extends Component {
         this.onCustomerUpdate = this.onCustomerUpdate.bind(this)
         this.clearAbo = this.clearAbo.bind(this)
         this.onCustomerDelete = this.onCustomerDelete.bind(this)
-
-        const minDate = new Date();
-        minDate.setDate(minDate.getDate() + 2);
+        this.getMinDate = this.getMinDate.bind(this)
 
         this.state = {
             isLoggedIn: false,
@@ -51,10 +49,17 @@ export class App extends Component {
                     state: "",
                 },
             },
-            startDate: minDate,
+            startDate: this.getMinDate(),
             hint: "",
             abo: {},
         }
+    }
+
+    getMinDate() {
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 2)
+
+        return minDate
     }
 
     handleLogIn(user) {
@@ -86,6 +91,8 @@ export class App extends Component {
                 },
             },
             abo: {},
+            startDate: this.getMinDate(),
+            hint: "",
         })
         this.props.history.push(`/`)
         return null
@@ -153,6 +160,8 @@ export class App extends Component {
     clearAbo() {
         this.setState({
             abo: {},
+            startDate: this.getMinDate(),
+            hint: "",
         })
     }
 

@@ -37,7 +37,7 @@ class LandingPage extends Component {
 
     render() {
 
-        const {isLoggedIn, userName} = this.props
+        const {isLoggedIn, user} = this.props
         const {show} = this.state
 
         return (
@@ -60,7 +60,7 @@ class LandingPage extends Component {
                             !isLoggedIn ?
                                 <h1>Herzlich Willkommen!</h1>
                                 :
-                                <h1>Herzlich Willkommen zurück {userName}!</h1>
+                                <h1>Herzlich Willkommen zurück {user.firstname + " " + user.lastname}!</h1>
                         }
                         <p>
                             Hier bei deiner Zeitung vor Ort!<br/>
@@ -149,7 +149,7 @@ class LandingPage extends Component {
 
 LandingPage.propTypes = {
     isLoggedIn: PropTypes.bool.isRequired,
-    userName: PropTypes.string.isRequired,
+    user: PropTypes.object.isRequired,
     showToast: PropTypes.bool,
 };
 

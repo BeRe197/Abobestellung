@@ -4,8 +4,6 @@ import {Link, withRouter} from "react-router-dom";
 
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import ListGroup from "react-bootstrap/ListGroup";
-import Card from "react-bootstrap/Card";
 import {Grid, Typography, Switch} from "@material-ui/core";
 import DateFnsUtils from "@date-io/date-fns";
 import deLocale from "date-fns/locale/de";
@@ -15,6 +13,7 @@ import {getDistanceFromCompanyToDestinationPlz, getLocalVersionsForPlz} from "..
 import Spinner from "react-bootstrap/Spinner";
 import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
+import AboEdition from "../fragment/AboEdition";
 
 class Step2Detail extends Component {
 
@@ -22,15 +21,12 @@ class Step2Detail extends Component {
         super(props);
         this.handleYearlyChange = this.handleYearlyChange.bind(this)
         this.handleAboChange = this.handleAboChange.bind(this)
-        this.getDistanceSupplement = this.getDistanceSupplement.bind(this)
         this._getDistanceFromPLZ = this._getDistanceFromPLZ.bind(this)
         this._getLocalVersionsForPlz = this._getLocalVersionsForPlz.bind(this)
         this.handleCheckout = this.handleCheckout.bind(this)
         this.handleClose = this.handleClose.bind(this)
-
-        this.cardSport = React.createRef()
-        this.cardStadt = React.createRef()
-        this.cardLand = React.createRef()
+        this.handleVariantSelect = this.handleVariantSelect.bind(this)
+        this.getDistanceSupplement = this.getDistanceSupplement.bind(this)
 
         this.state = {
             isLoading: true,
@@ -44,6 +40,11 @@ class Step2Detail extends Component {
             showModal: false,
             otherCountry: false,
             otherCountryDelivery: 50,
+            cssEdition: {
+                sport: "",
+                stadt: "recommended",
+                land: "",
+            },
         }
     }
 
@@ -160,19 +161,6 @@ class Step2Detail extends Component {
         })
     }
 
-    getDistanceSupplement() {
-        const calcDistance = this.state.calcDistance
-        if (calcDistance === 0) {
-            return 0
-        } else if (calcDistance > 0 && calcDistance <= 10) {
-            return 5
-        } else if (calcDistance > 10 && calcDistance <= 30) {
-            return 10
-        } else if (calcDistance > 30) {
-            return 15
-        }
-    }
-
     handleYearlyChange() {
         if (this.state.checkedYearly) {
             this.setState((prevState) => ({
@@ -198,28 +186,34 @@ class Step2Detail extends Component {
     handleVariantSelect(variant) {
         // eslint-disable-next-line default-case
         switch (variant) {
-            case "sport":
-                this.cardSport.current.classList.add("recommended")
-                this.cardStadt.current.classList.remove("recommended")
-                this.cardLand.current.classList.remove("recommended")
+            case 2:
                 this.setState({
                     selectedAbo: "sport",
+                    cssEdition: {
+                        sport: "recommended",
+                        stadt: "",
+                        land: "",
+                    },
                 })
                 break;
-            case "stadt":
-                this.cardSport.current.classList.remove("recommended")
-                this.cardStadt.current.classList.add("recommended")
-                this.cardLand.current.classList.remove("recommended")
+            case 1:
                 this.setState({
                     selectedAbo: "stadt",
+                    cssEdition: {
+                        sport: "",
+                        stadt: "recommended",
+                        land: "",
+                    },
                 })
                 break;
-            case "land":
-                this.cardSport.current.classList.remove("recommended")
-                this.cardStadt.current.classList.remove("recommended")
-                this.cardLand.current.classList.add("recommended")
+            case 3:
                 this.setState({
                     selectedAbo: "land",
+                    cssEdition: {
+                        sport: "",
+                        stadt: "",
+                        land: "recommended",
+                    },
                 })
                 break;
         }
@@ -242,8 +236,8 @@ class Step2Detail extends Component {
                 paymenttype: "",      //Invoice or Direct debit
                 payment: this.state.checkedYearly ? "Annual" : "Monthly",               //Monthly or Annual
                 subscriptiontype: this.state.aboWeekend ? "Weekend" : "Daily",       //Daily or Weekend
-                calculatedprice: this.state.price[this.state.selectedAbo].price[1],          //Each paper
-                calculatedyearprice: this.state.price[this.state.selectedAbo].price[0],      //Pay Yearly
+                calculatedprice: (this.state.aboWeekend ? Math.round(this.state.price[this.state.selectedAbo].price[1] * 0.6) : this.state.price[this.state.selectedAbo].price[1]) + this.getDistanceSupplement(), //Pay Monthly
+                calculatedyearprice: (this.state.aboWeekend ? Math.round(this.state.price[this.state.selectedAbo].price[0] * 0.6) : this.state.price[this.state.selectedAbo].price[0]) + this.getDistanceSupplement(), //Pay Yearly
                 localpaperversions: this.state.price[this.state.selectedAbo].id,         //Id from localpaperversions
                 hintDeliveryMan: this.state.price[this.state.selectedAbo].isAvailable ? this.props.hint : "", //additional hint for the Delivery man
             }
@@ -265,6 +259,19 @@ class Step2Detail extends Component {
         })
     }
 
+    getDistanceSupplement() {
+        const calcDistance = this.state.calcDistance
+        if (calcDistance === 0) {
+            return 0
+        } else if (calcDistance > 0 && calcDistance <= 10) {
+            return 5
+        } else if (calcDistance > 10 && calcDistance <= 30) {
+            return 10
+        } else if (calcDistance > 30) {
+            return 15
+        }
+    }
+
     render() {
 
         const {
@@ -278,6 +285,8 @@ class Step2Detail extends Component {
             showModal,
             otherCountry,
             otherCountryDelivery,
+            cssEdition,
+            calcDistance,
         } = this.state
         const {startDate, handleStartDateChange, hint, handleChangeHint} = this.props
 
@@ -337,123 +346,30 @@ class Step2Detail extends Component {
                                         </Grid>
                                     </Typography>
                                     <div className="detailVersionList">
-                                        <Card ref={this.cardSport} className="detailVersion">
-                                            <Card.Header className="detailVersionHeader">
-                                                SPORTVERSION<br/>
-                                                <span><span
-                                                    className="detailVersionHeaderValue">{(aboWeekend ? Math.round(price.sport.price[currentPriceID] * 0.6) : price.sport.price[currentPriceID]) + this.getDistanceSupplement()}</span>€/{period}</span>
-                                            </Card.Header>
-                                            <ListGroup variant="flush"
-                                                       style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
-                                                <ListGroup.Item className="detailVersionItem">Globaler Teil inkl.
-                                                    ausgewählter
-                                                    Lokalteil</ListGroup.Item>
-                                                {
-                                                    price.sport.isAvailable ?
-                                                        <ListGroup.Item className="detailVersionItem">Geliefert durch
-                                                            Austräger</ListGroup.Item>
-                                                        :
-                                                        <ListGroup.Item className="detailVersionItem">Wird mit DHL
-                                                            versendet</ListGroup.Item>
-                                                }
-                                                {
-                                                    price.sport.isAvailable ?
-                                                        <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {this.getDistanceSupplement()}€
-                                                            Entfernungspauschale</ListGroup.Item>
-                                                        :
-                                                        <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
-                                                            Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
-                                                }
-                                                <ListGroup.Item
-                                                    className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
-                                                <ListGroup.Item
-                                                    className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
-                                            </ListGroup>
-                                            <Card.Footer className="detailVersionFooter">
-                                                <Button
-                                                    onClick={() => (this.handleVariantSelect("sport"))}>Auswählen</Button>
-                                            </Card.Footer>
-                                        </Card>
-                                        <Card ref={this.cardStadt} className="detailVersion recommended">
-                                            <Card.Header className="detailVersionHeader">
-                                                STADTAUSGABE<br/>
-                                                <span><span
-                                                    className="detailVersionHeaderValue">{(aboWeekend ? Math.round(price.stadt.price[currentPriceID] * 0.6) : price.stadt.price[currentPriceID]) + this.getDistanceSupplement()}</span>€/{period}</span>
-                                            </Card.Header>
-                                            <ListGroup variant="flush"
-                                                       style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
-                                                <ListGroup.Item className="detailVersionItem">Globaler Teil inkl.
-                                                    ausgewählter
-                                                    Lokalteil</ListGroup.Item>
-                                                {
-                                                    price.stadt.isAvailable ?
-                                                        <ListGroup.Item className="detailVersionItem">Geliefert durch
-                                                            Austräger</ListGroup.Item>
-                                                        :
-                                                        <ListGroup.Item className="detailVersionItem">Wird mit DHL
-                                                            versendet</ListGroup.Item>
-                                                }
-                                                {
-                                                    price.stadt.isAvailable ?
-                                                        <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {this.getDistanceSupplement()}€
-                                                            Entfernungspauschale</ListGroup.Item>
-                                                        :
-                                                        <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
-                                                            Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
-                                                }
-                                                <ListGroup.Item
-                                                    className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
-                                                <ListGroup.Item
-                                                    className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
-                                            </ListGroup>
-                                            <Card.Footer className="detailVersionFooter">
-                                                <Button
-                                                    onClick={() => (this.handleVariantSelect("stadt"))}>Auswählen</Button>
-                                            </Card.Footer>
-                                        </Card>
-                                        <Card ref={this.cardLand} className="detailVersion">
-                                            <Card.Header className="detailVersionHeader">
-                                                LANDKREISINFO<br/>
-                                                <span><span
-                                                    className="detailVersionHeaderValue">{(aboWeekend ? Math.round(price.land.price[currentPriceID] * 0.6) : price.land.price[currentPriceID]) + this.getDistanceSupplement()}</span>€/{period}</span>
-                                            </Card.Header>
-                                            <ListGroup variant="flush"
-                                                       style={{borderBottom: "1px solid rgba(0,0,0,.125)"}}>
-                                                <ListGroup.Item className="detailVersionItem">Globaler Teil inkl.
-                                                    ausgewählter
-                                                    Lokalteil</ListGroup.Item>
-                                                {
-                                                    price.land.isAvailable ?
-                                                        <ListGroup.Item className="detailVersionItem">Geliefert durch
-                                                            Austräger</ListGroup.Item>
-                                                        :
-                                                        <ListGroup.Item className="detailVersionItem">Wird mit DHL
-                                                            versendet</ListGroup.Item>
-                                                }
-                                                {
-                                                    price.land.isAvailable ?
-                                                        <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {this.getDistanceSupplement()}€
-                                                            Entfernungspauschale</ListGroup.Item>
-                                                        :
-                                                        <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
-                                                            Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
-                                                }
-                                                <ListGroup.Item
-                                                    className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
-                                                <ListGroup.Item
-                                                    className="detailVersionItem">{checkedYearly ? "Jährliche " : "Monatliche "} Zahlung</ListGroup.Item>
-                                            </ListGroup>
-                                            <Card.Footer className="detailVersionFooter">
-                                                <Button
-                                                    onClick={() => (this.handleVariantSelect("land"))}>Auswählen</Button>
-                                            </Card.Footer>
-                                        </Card>
+                                        <AboEdition cssCardClass={cssEdition.sport} title={"SPORTVERSION"}
+                                                    aboWeekend={aboWeekend} edition={price.sport}
+                                                    currentPriceID={currentPriceID} period={period}
+                                                    otherCountry={otherCountry} calcDistance={calcDistance}
+                                                    otherCountryDelivery={otherCountryDelivery}
+                                                    checkedYearly={checkedYearly}
+                                                    getDistanceSupplement={this.getDistanceSupplement}
+                                                    handleVariantSelect={this.handleVariantSelect}/>
+                                        <AboEdition cssCardClass={cssEdition.stadt} title={"STADTAUSGABE"}
+                                                    aboWeekend={aboWeekend} edition={price.stadt}
+                                                    currentPriceID={currentPriceID} period={period}
+                                                    otherCountry={otherCountry} calcDistance={calcDistance}
+                                                    otherCountryDelivery={otherCountryDelivery}
+                                                    checkedYearly={checkedYearly}
+                                                    getDistanceSupplement={this.getDistanceSupplement}
+                                                    handleVariantSelect={this.handleVariantSelect}/>
+                                        <AboEdition cssCardClass={cssEdition.land} title={"LANDKREISINFO"}
+                                                    aboWeekend={aboWeekend} edition={price.land}
+                                                    currentPriceID={currentPriceID} period={period}
+                                                    otherCountry={otherCountry} calcDistance={calcDistance}
+                                                    otherCountryDelivery={otherCountryDelivery}
+                                                    checkedYearly={checkedYearly}
+                                                    getDistanceSupplement={this.getDistanceSupplement}
+                                                    handleVariantSelect={this.handleVariantSelect}/>
                                     </div>
                                 </Container>
                             </div>

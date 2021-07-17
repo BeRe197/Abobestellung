@@ -7,6 +7,8 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Spinner from "react-bootstrap/Spinner";
 import {updateAboForCustomer} from "../../api/Api";
+import Toast from "react-bootstrap/Toast";
+import {ImCheckmark} from "react-icons/all";
 
 class Abonnement extends Component {
 
@@ -19,10 +21,12 @@ class Abonnement extends Component {
         this.getPaymentType = this.getPaymentType.bind(this)
         this.handleCloseCancelAbo = this.handleCloseCancelAbo.bind(this)
         this.handleCancelAbo = this.handleCancelAbo.bind(this)
+        this.handleCloseToast = this.handleCloseToast.bind(this)
 
         this.state = {
             showModalCancelAbo: false,
             cancelAbo: false,
+            showToast: false,
         }
     }
 
@@ -98,14 +102,21 @@ class Abonnement extends Component {
             this.setState({
                 cancelAbo: false,
                 showModalCancelAbo: false,
+                showToast: true,
             })
+        })
+    }
+
+    handleCloseToast() {
+        this.setState({
+            showToast: false,
         })
     }
 
     render() {
 
         const {abo, allowCancel} = this.props
-        const {showModalCancelAbo, cancelAbo} = this.state
+        const {showModalCancelAbo, cancelAbo, showToast} = this.state
 
         return (
             <>
@@ -125,7 +136,11 @@ class Abonnement extends Component {
                             <p><b>Preis:</b> {this.getAboPrice()}</p>
                             <p><b>Abonnementvariante:</b> {this.getAboVariant()}</p>
                             <p><b>Liefermethode:</b> {this.getDeliveryMethod()}</p>
-                            <p><b>Hinweis:</b> {abo.hintDeliveryMan}</p>
+                            {
+                                abo.hintDeliveryMan !== "" ?
+                                    <p><b>Hinweis:</b> {abo.hintDeliveryMan}</p>
+                                    : ""
+                            }
                         </ListGroup.Item>
                     </Col>
                     <Col>
@@ -189,6 +204,13 @@ class Abonnement extends Component {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                <Toast className="p-3 toastSuccess" onClose={this.handleCloseToast} position={"bottom-center"} bg="success" show={showToast} delay={3000} autohide>
+                    <Toast.Header closeButton={false}>
+                        <ImCheckmark style={{marginRight: "0.4rem"}}/>
+                        <strong className="me-auto">Erfolgreich</strong>
+                    </Toast.Header>
+                    <Toast.Body>Sie haben Ihr Abo erfolgreich storniert!</Toast.Body>
+                </Toast>
             </>
         );
     }

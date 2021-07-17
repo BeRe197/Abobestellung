@@ -40,13 +40,13 @@ export class App extends Component {
                     city: "",
                     plz: "",
                     street: "",
-                    state: "",
+                    state: "Deutschland",
                 },
                 billingAddress: {
                     city: "",
                     plz: "",
                     street: "",
-                    state: "",
+                    state: "Deutschland",
                 },
             },
             startDate: this.getMinDate(),
@@ -81,13 +81,13 @@ export class App extends Component {
                     city: "",
                     plz: "",
                     street: "",
-                    state: "",
+                    state: "Deutschland",
                 },
                 billingAddress: {
                     city: "",
                     plz: "",
                     street: "",
-                    state: "",
+                    state: "Deutschland",
                 },
             },
             abo: {},
@@ -202,7 +202,7 @@ export class App extends Component {
                         {this.handleLogOut}
                     </Route>
                     <Route exact path="/">
-                        <LandingPage isLoggedIn={isLoggedIn} userName={user.email}/>
+                        <LandingPage isLoggedIn={isLoggedIn} user={user}/>
                     </Route>
                 </Switch>
             </>

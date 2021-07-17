@@ -221,7 +221,7 @@ class Step1Delivery extends Component {
                                 </div>
                                 <div className="priceTagText">
                                     Die Zeitung - Gedruckt
-                                    <Button onClick={this.startConfig} style={{float: "inline-end"}}>
+                                    <Button onClick={this.startConfig} style={{float: "right"}}>
                                         Konfigurieren
                                     </Button>
                                 </div>

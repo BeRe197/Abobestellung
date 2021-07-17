@@ -244,7 +244,7 @@ class Step3Checkout extends Component {
             showDelAddressToastSuccess,
             showDelAddressToastError,
         } = this.state
-        const {user, abo} = this.props
+        const {user} = this.props
 
         return (
             <div className="landingPageContainer">

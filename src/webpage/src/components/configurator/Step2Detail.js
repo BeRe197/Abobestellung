@@ -9,7 +9,6 @@ import DateFnsUtils from "@date-io/date-fns";
 import deLocale from "date-fns/locale/de";
 import {MuiPickersUtilsProvider, KeyboardDatePicker} from "@material-ui/pickers";
 import {FormControl, InputGroup, Row} from "react-bootstrap";
-import {getDistanceFromCompanyToDestinationPlz, getLocalVersionsForPlz} from "../../api/Api";
 import Spinner from "react-bootstrap/Spinner";
 import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
@@ -21,8 +20,6 @@ class Step2Detail extends Component {
         super(props);
         this.handleYearlyChange = this.handleYearlyChange.bind(this)
         this.handleAboChange = this.handleAboChange.bind(this)
-        this._getDistanceFromPLZ = this._getDistanceFromPLZ.bind(this)
-        this._getLocalVersionsForPlz = this._getLocalVersionsForPlz.bind(this)
         this.handleCheckout = this.handleCheckout.bind(this)
         this.handleClose = this.handleClose.bind(this)
         this.handleVariantSelect = this.handleVariantSelect.bind(this)
@@ -50,14 +47,27 @@ class Step2Detail extends Component {
 
     componentDidMount() {
         if (this.props.user.deliveryAddress.state === "Deutschland") {
-            this._getDistanceFromPLZ()
-                .then(calcDistance => {
-                    this._getLocalVersionsForPlz()
-                        .then(localVersion => {
+            const headers = {'Access-Control-Allow-Origin': '*'}
+            fetch(`http://localhost:4500/functions/getDistanceFromCompanyToDestinationPlz/${this.props.user.deliveryAddress.plz}`, {
+                method: 'GET',
+                header: headers
+            })
+                .then((response) => response.json())
+                .then((json) => {
+                    const calcDistance = json.distance
+                    console.log("Got Distance " + calcDistance);
+
+                    fetch(`http://localhost:4500/functions/getLocalVersionsForPlz/${this.props.user.deliveryAddress.plz}`, {
+                        method: 'GET',
+                        header: headers
+                    })
+                        .then((response) => response.json())
+                        .then((localVersions) => {
+                            console.log("Got " + Object.values(localVersions).length + " LocalVersions");
                             let stadt = false
                             let sport = false
                             let land = false
-                            Object.values(localVersion.localversions).forEach((version) => {
+                            Object.values(localVersions).forEach((version) => {
                                 // eslint-disable-next-line default-case
                                 switch (version.name) {
                                     case "Stadtausgabe":
@@ -102,11 +112,8 @@ class Step2Detail extends Component {
                                     },
                                 },
                             })
-                            return true;
-                        })
-                    return true;
-                })
-                .catch(err => console.log('There was an error:' + err))
+                        });
+                });
         } else {
             this.setState({
                 calcDistance: 0,
@@ -140,25 +147,6 @@ class Step2Detail extends Component {
                 },
             })
         }
-    }
-
-    _getDistanceFromPLZ() {
-        return new Promise((resolve, reject) => {
-            getDistanceFromCompanyToDestinationPlz(this.props.user.deliveryAddress.plz).then((erg) => {
-                let resultObj = erg.distanceCalcObj[0];
-                resolve(resultObj.distance)
-            }, () => {
-                reject("Error while getting distance")
-            })
-        })
-    }
-
-    _getLocalVersionsForPlz() {
-        return new Promise((resolve) => {
-            getLocalVersionsForPlz(this.props.user.deliveryAddress.plz).then((erg) => {
-                resolve(erg)
-            })
-        })
     }
 
     handleYearlyChange() {

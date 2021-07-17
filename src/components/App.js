@@ -10,6 +10,7 @@ import Step2Detail from "./configurator/Step2Detail";
 import Step3Checkout from "./configurator/Step3Checkout";
 import Userprofile from "./user/Userprofile";
 import Abonnements from "./user/Abonnements";
+import GoodbyePage from "./GoodbyePage";
 
 import {deleteCustomer, updateCustomer} from "../api/Api";
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -185,8 +186,8 @@ export class App extends Component {
                     <ProtectedRoute exact path="/konfigurator/checkout" isAuth={isLoggedIn}
                                     component={Step3Checkout} user={user} abo={abo} isLoggedIn={isLoggedIn}
                                     onCustomerUpdate={this.onCustomerUpdate} clearAbo={this.clearAbo}/>
-                    <ProtectedRoute exact path="/checkout" isAuth={isLoggedIn} component={LandingPage}
-                                    isLoggedIn={isLoggedIn} userName={user.email} showToast/>
+                    <ProtectedRoute exact path="/checkout" isAuth={isLoggedIn} component={GoodbyePage}
+                                    isLoggedIn={isLoggedIn} user={user} showToast/>
                     <ProtectedRoute exact path="/benutzerprofil" isAuth={isLoggedIn}
                                     component={Userprofile} user={user} onCustomerUpdate={this.onCustomerUpdate}
                                     onCustomerDelete={this.onCustomerDelete}/>

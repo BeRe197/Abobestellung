@@ -5,40 +5,14 @@ import {withRouter} from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
 import Image from 'react-bootstrap/Image'
 import Button from 'react-bootstrap/Button'
-import Toast from "react-bootstrap/Toast"
 
 import logo from '../assets/images/logo.png'
-import {ImCheckmark} from "react-icons/all";
 
 class LandingPage extends Component {
-
-    constructor(props) {
-        super(props);
-        this.handleClose = this.handleClose.bind(this)
-
-        this.state = {
-            show: false
-        }
-    }
-
-    componentDidMount() {
-        if (this.props.showToast) {
-            this.setState({
-                show: true,
-            })
-        }
-    }
-
-    handleClose() {
-        this.setState({
-            show: false,
-        })
-    }
 
     render() {
 
         const {isLoggedIn, user} = this.props
-        const {show} = this.state
 
         return (
             <>
@@ -134,13 +108,6 @@ class LandingPage extends Component {
                         </p>
                     </Container>
                 </div>
-                <Toast className="p-3 toastSuccess" onClose={this.handleClose} position={"bottom-center"} bg="success" show={show} delay={3000} autohide>
-                    <Toast.Header closeButton={false}>
-                        <ImCheckmark style={{marginRight: "0.4rem"}}/>
-                        <strong className="me-auto">Erfolgreich</strong>
-                    </Toast.Header>
-                    <Toast.Body>Sie haben Ihr Abo erfolgreich abgeschlossen!</Toast.Body>
-                </Toast>
             </>
         )
             ;
@@ -150,7 +117,6 @@ class LandingPage extends Component {
 LandingPage.propTypes = {
     isLoggedIn: PropTypes.bool.isRequired,
     user: PropTypes.object.isRequired,
-    showToast: PropTypes.bool,
 };
 
 export default withRouter(LandingPage);

@@ -92,6 +92,7 @@ class Registrieren extends Component {
     render() {
 
         const {differentBillingAddress, validated, signIn, duplicateEmailAddress} = this.state
+        const {user} = this.props
 
         return (
             <div className={"registrieren"}>
@@ -131,7 +132,8 @@ class Registrieren extends Component {
                     }
 
                     <Form.Group controlId="formGridAddress1">
-                        <Form.Control disabled={signIn} required placeholder="Straße"/>
+                        <Form.Control disabled={signIn} required defaultValue={user.deliveryAddress.street}
+                                      placeholder="Straße"/>
                         <Form.Control.Feedback type="invalid">
                             Bitte geben Sie Ihre Straße ein.
                         </Form.Control.Feedback>
@@ -139,14 +141,16 @@ class Registrieren extends Component {
 
                     <Form.Row>
                         <Form.Group as={Col} controlId="formGridCity1">
-                            <Form.Control disabled={signIn} required name="city" placeholder="Stadt"/>
+                            <Form.Control disabled={signIn} required name="city"
+                                          defaultValue={user.deliveryAddress.city} placeholder="Stadt"/>
                             <Form.Control.Feedback type="invalid">
                                 Bitte geben Sie Ihre Stadt ein.
                             </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridZip1">
-                            <Form.Control disabled={signIn} required type="number" name="zip" placeholder="PLZ"/>
+                            <Form.Control disabled={signIn} required defaultValue={user.deliveryAddress.plz}
+                                          type="number" name="zip" placeholder="PLZ"/>
                             <Form.Control.Feedback type="invalid">
                                 Bitte geben Sie Ihre Postleitzahl ein.
                             </Form.Control.Feedback>
@@ -154,7 +158,8 @@ class Registrieren extends Component {
                     </Form.Row>
 
                     <Form.Group controlId="formGridState1">
-                        <Form.Control disabled={signIn} required name="state" as="select" defaultValue="Deutschland">
+                        <Form.Control disabled={signIn} required name="state" as="select"
+                                      defaultValue={user.deliveryAddress.state !== "" ? user.deliveryAddress.state : "Deutschland"}>
                             <option>Deutschland</option>
                             <option>Österreich</option>
                             <option>Schweiz</option>
@@ -270,6 +275,7 @@ class Registrieren extends Component {
 
 Registrieren.propTypes = {
     handleLogIn: PropTypes.func.isRequired,
+    user: PropTypes.object,
 }
 
 export default Registrieren;

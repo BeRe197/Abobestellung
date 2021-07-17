@@ -63,9 +63,6 @@ export class App extends Component {
     }
 
     handleLogOut() {
-        const minDate = new Date();
-        minDate.setDate(minDate.getDate() + 2);
-
         this.setState({
             isLoggedIn: false,
             user: {
@@ -162,7 +159,7 @@ export class App extends Component {
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>
                     <Route exact path="/registrieren">
-                        <Registrieren handleLogIn={this.handleLogIn}/>
+                        <Registrieren handleLogIn={this.handleLogIn} user={user}/>
                     </Route>
                     <Route exact path="/abmelden">
                         {this.handleLogOut}

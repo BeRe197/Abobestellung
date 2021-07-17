@@ -8,6 +8,7 @@ import ListGroup from "react-bootstrap/ListGroup";
 import Card from "react-bootstrap/Card";
 import {Grid, Typography, Switch} from "@material-ui/core";
 import DateFnsUtils from "@date-io/date-fns";
+import deLocale from "date-fns/locale/de";
 import {MuiPickersUtilsProvider, KeyboardDatePicker} from "@material-ui/pickers";
 import {FormControl, InputGroup, Row} from "react-bootstrap";
 import {getDistanceFromCompanyToDestinationPlz, getLocalVersionsForPlz} from "../../api/Api";
@@ -189,31 +190,36 @@ class Step2Detail extends Component {
     }
 
     handleCheckout() {
-        let newAbo = {
-            id: 0,
-            cid: this.props.isLoggedIn ? this.props.user.id : 0,
-            created: new Date().toLocaleString().split(",")[0],
-            startabodate: this.props.startDate.toLocaleString().split(",")[0],
-            endabodate: "",
-            dataprivacyaccepted: false,
-            abotype: "Printed",              //Printed or E-paper or Website
-            deliverymethod: this.state.price[this.state.selectedAbo].isAvailable ? "Delivery man" : "Post",          //Post or Delivery man
-            paymenttype: "",      //Credit Card or Direct debit
-            payment: this.state.checkedYearly ? "Annual" : "Monthly",               //Monthly or Annual
-            subscriptiontype: this.state.aboWeekend ? "Weekend" : "Daily",       //Daily or Weekend
-            calculatedprice: this.state.price[this.state.selectedAbo].price[1],          //Each paper
-            calculatedyearprice: this.state.price[this.state.selectedAbo].price[0],      //Pay Yearly
-            localpaperversions: this.state.price[this.state.selectedAbo].id,         //Id from localpaperversions
-            hintDeliveryMan: this.state.price[this.state.selectedAbo].isAvailable ? this.state.hint : "", //additional hint for the Delivery man
-        }
-        this.props.onAboCreate(newAbo)
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 2);
+        
+        if (this.props.startDate.setHours(0,0,0,0) >= minDate.setHours(0,0,0,0)) {
+            let newAbo = {
+                id: 0,
+                cid: this.props.isLoggedIn ? this.props.user.id : 0,
+                created: new Date().toLocaleString().split(",")[0],
+                startabodate: this.props.startDate.toLocaleString().split(",")[0],
+                endabodate: "",
+                dataprivacyaccepted: false,
+                abotype: "Printed",              //Printed or E-paper or Website
+                deliverymethod: this.state.price[this.state.selectedAbo].isAvailable ? "Delivery man" : "Post",          //Post or Delivery man
+                paymenttype: "",      //Credit Card or Direct debit
+                payment: this.state.checkedYearly ? "Annual" : "Monthly",               //Monthly or Annual
+                subscriptiontype: this.state.aboWeekend ? "Weekend" : "Daily",       //Daily or Weekend
+                calculatedprice: this.state.price[this.state.selectedAbo].price[1],          //Each paper
+                calculatedyearprice: this.state.price[this.state.selectedAbo].price[0],      //Pay Yearly
+                localpaperversions: this.state.price[this.state.selectedAbo].id,         //Id from localpaperversions
+                hintDeliveryMan: this.state.price[this.state.selectedAbo].isAvailable ? this.state.hint : "", //additional hint for the Delivery man
+            }
+            this.props.onAboCreate(newAbo)
 
-        if (this.props.isLoggedIn) {
-            this.props.history.push(`/konfigurator/checkout`)
-        } else {
-            this.setState({
-                showModal: true,
-            })
+            if (this.props.isLoggedIn) {
+                this.props.history.push(`/konfigurator/checkout`)
+            } else {
+                this.setState({
+                    showModal: true,
+                })
+            }
         }
     }
 
@@ -407,7 +413,7 @@ class Step2Detail extends Component {
                             <div className="landingPageContainer">
                                 <Container>
                                     <h2 className="detailVersionChapter">Wann soll Ihr Abo beginnen?</h2>
-                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils} locale={deLocale}>
                                         <Grid container justifyContent="space-around">
                                             <KeyboardDatePicker
                                                 disableToolbar
@@ -415,13 +421,15 @@ class Step2Detail extends Component {
                                                 variant="inline"
                                                 format="dd.MM.yyyy"
                                                 margin="normal"
-                                                id="date-picker-inline"
-                                                label="Date picker inline"
+                                                id="date-picker-startDate"
+                                                label="Start des Abos:"
                                                 value={startDate}
                                                 onChange={handleStartDateChange}
                                                 KeyboardButtonProps={{
                                                     'aria-label': 'change date',
                                                 }}
+                                                invalidDateMessage="Bitte geben Sie ein Datum in folgendem Format ein: dd.MM.yyyy"
+                                                minDateMessage="Das Abo kann frühestens in zwei Tagen starten!"
                                             />
                                         </Grid>
                                     </MuiPickersUtilsProvider>
@@ -463,7 +471,8 @@ class Step2Detail extends Component {
                         <Modal.Title>Checkout</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{textAlign: "center"}}>
-                        <p>Bitte melden Sie sich an. Wenn Sie noch keinen User haben, dann können Sie sich registrieren.</p>
+                        <p>Bitte melden Sie sich an. Wenn Sie noch keinen User haben, dann können Sie sich
+                            registrieren.</p>
                         <Link to="/anmelden">
                             <Button variant="outline-primary" style={{marginRight: "10px"}}>
                                 Anmelden

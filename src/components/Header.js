@@ -66,8 +66,7 @@ export class Header extends Component {
                                         <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
                                         <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
                                         <Dropdown.Divider/>
-                                        <Dropdown.Item><Link className="headerLink"
-                                                             to="/abmelden">Abmelden</Link></Dropdown.Item>
+                                        <Link className="headerLink, dropdown-item" to="/abmelden">Abmelden</Link>
                                     </Dropdown.Menu>
                                 </Dropdown>
                         }

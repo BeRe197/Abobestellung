@@ -18,8 +18,10 @@ module.exports = {
                     res({"distance": distanceResult, "plzDestination": plzDestination});
                 })
             } else {
-                console.log("No plz found with:" + plzDestination);
-                res({"distance": 0, "plzDestination": plzDestination});
+                return new Promise((res, rej) => {
+                    console.log("No plz found with:" + plzDestination);
+                    res({"distance": 0, "plzDestination": plzDestination});
+                })
             }
         }
     }

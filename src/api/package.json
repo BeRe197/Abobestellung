@@ -1,0 +1,26 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "REST api for Abobestellung project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeRe197/Abobestellung.git"
+  },
+  "keywords": [
+    "api"
+  ],
+  "author": "BeRe197",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BeRe197/Abobestellung/issues"
+  },
+  "homepage": "https://github.com/BeRe197/Abobestellung#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

@@ -73,7 +73,7 @@ class Abonnement extends Component {
             );
         } else {
             return (
-                <p>Per <b>Rechnung</b> an oben angegebene Adresse</p>
+                <p>Per <b>Rechnung</b> an hinterlegte Rechnungsadresse</p>
             );
         }
     }

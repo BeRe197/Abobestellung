@@ -346,30 +346,38 @@ class Step2Detail extends Component {
                                         </Grid>
                                     </Typography>
                                     <div className="detailVersionList">
-                                        <AboEdition cssCardClass={cssEdition.sport} title={"SPORTVERSION"}
-                                                    aboWeekend={aboWeekend} edition={price.sport}
-                                                    currentPriceID={currentPriceID} period={period}
-                                                    otherCountry={otherCountry} calcDistance={calcDistance}
-                                                    otherCountryDelivery={otherCountryDelivery}
-                                                    checkedYearly={checkedYearly}
-                                                    getDistanceSupplement={this.getDistanceSupplement}
-                                                    handleVariantSelect={this.handleVariantSelect}/>
-                                        <AboEdition cssCardClass={cssEdition.stadt} title={"STADTAUSGABE"}
-                                                    aboWeekend={aboWeekend} edition={price.stadt}
-                                                    currentPriceID={currentPriceID} period={period}
-                                                    otherCountry={otherCountry} calcDistance={calcDistance}
-                                                    otherCountryDelivery={otherCountryDelivery}
-                                                    checkedYearly={checkedYearly}
-                                                    getDistanceSupplement={this.getDistanceSupplement}
-                                                    handleVariantSelect={this.handleVariantSelect}/>
-                                        <AboEdition cssCardClass={cssEdition.land} title={"LANDKREISINFO"}
-                                                    aboWeekend={aboWeekend} edition={price.land}
-                                                    currentPriceID={currentPriceID} period={period}
-                                                    otherCountry={otherCountry} calcDistance={calcDistance}
-                                                    otherCountryDelivery={otherCountryDelivery}
-                                                    checkedYearly={checkedYearly}
-                                                    getDistanceSupplement={this.getDistanceSupplement}
-                                                    handleVariantSelect={this.handleVariantSelect}/>
+                                        <Row>
+                                            <Col style={{marginBottom: "1rem"}}>
+                                                <AboEdition cssCardClass={cssEdition.sport} title={"SPORTVERSION"}
+                                                            aboWeekend={aboWeekend} edition={price.sport}
+                                                            currentPriceID={currentPriceID} period={period}
+                                                            otherCountry={otherCountry} calcDistance={calcDistance}
+                                                            otherCountryDelivery={otherCountryDelivery}
+                                                            checkedYearly={checkedYearly}
+                                                            getDistanceSupplement={this.getDistanceSupplement}
+                                                            handleVariantSelect={this.handleVariantSelect}/>
+                                            </Col>
+                                            <Col style={{marginBottom: "1rem"}}>
+                                                <AboEdition cssCardClass={cssEdition.stadt} title={"STADTAUSGABE"}
+                                                            aboWeekend={aboWeekend} edition={price.stadt}
+                                                            currentPriceID={currentPriceID} period={period}
+                                                            otherCountry={otherCountry} calcDistance={calcDistance}
+                                                            otherCountryDelivery={otherCountryDelivery}
+                                                            checkedYearly={checkedYearly}
+                                                            getDistanceSupplement={this.getDistanceSupplement}
+                                                            handleVariantSelect={this.handleVariantSelect}/>
+                                            </Col>
+                                            <Col style={{marginBottom: "1rem"}}>
+                                                <AboEdition cssCardClass={cssEdition.land} title={"LANDKREISINFO"}
+                                                            aboWeekend={aboWeekend} edition={price.land}
+                                                            currentPriceID={currentPriceID} period={period}
+                                                            otherCountry={otherCountry} calcDistance={calcDistance}
+                                                            otherCountryDelivery={otherCountryDelivery}
+                                                            checkedYearly={checkedYearly}
+                                                            getDistanceSupplement={this.getDistanceSupplement}
+                                                            handleVariantSelect={this.handleVariantSelect}/>
+                                            </Col>
+                                        </Row>
                                     </div>
                                 </Container>
                             </div>
@@ -460,13 +468,25 @@ class Step2Detail extends Component {
 }
 
 Step2Detail.propTypes = {
-    startDate: PropTypes.instanceOf(Date).isRequired,
-    handleStartDateChange: PropTypes.func.isRequired,
-    hint: PropTypes.string.isRequired,
-    handleChangeHint: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired,
-    isLoggedIn: PropTypes.bool.isRequired,
-    onAboCreate: PropTypes.func.isRequired,
-};
+    startDate: PropTypes.instanceOf
+    (
+        Date
+    ).isRequired
+    ,
+    handleStartDateChange: PropTypes.func.isRequired
+    ,
+    hint: PropTypes.string.isRequired
+    ,
+    handleChangeHint: PropTypes.func.isRequired
+    ,
+    user: PropTypes.object.isRequired
+    ,
+    isLoggedIn: PropTypes.bool.isRequired
+    ,
+    onAboCreate: PropTypes.func.isRequired
+    ,
+}
+
+;
 
 export default withRouter(Step2Detail);

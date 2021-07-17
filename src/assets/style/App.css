@@ -142,8 +142,8 @@ body {
 .detailVersion {
     border: 2px #95ceff solid !important;
     border-radius: 8px !important;
-    width: 18rem;
-    float: left;
+    width: 100% !important;
+    max-width: 20rem !important;
 }
 
 .detailVersion:not(:last-child) {

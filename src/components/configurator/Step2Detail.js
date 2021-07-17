@@ -192,7 +192,7 @@ class Step2Detail extends Component {
     handleCheckout() {
         const minDate = new Date();
         minDate.setDate(minDate.getDate() + 2);
-        
+
         if (this.props.startDate.setHours(0,0,0,0) >= minDate.setHours(0,0,0,0)) {
             let newAbo = {
                 id: 0,

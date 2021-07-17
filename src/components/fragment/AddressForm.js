@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Col from "react-bootstrap/Col";
 
-class BillingAddressForm extends Component {
+class AddressForm extends Component {
 
     render() {
 
@@ -15,12 +15,13 @@ class BillingAddressForm extends Component {
             handleSubmit,
             update,
             user,
+            addressType,
         } = this.props
 
         return (
             <Form noValidate validated={validated} onSubmit={handleSubmit}>
                 <Form.Group controlId="formGridAddress2">
-                    <Form.Control required disabled={update} defaultValue={user.billingAddress.street}
+                    <Form.Control required disabled={update} defaultValue={user[addressType].street}
                                   placeholder="Straße"/>
                     <Form.Control.Feedback type="invalid">
                         Bitte geben Sie Ihre Straße ein.
@@ -29,7 +30,7 @@ class BillingAddressForm extends Component {
 
                 <Form.Row>
                     <Form.Group as={Col} controlId="formGridCity2">
-                        <Form.Control required disabled={update} defaultValue={user.billingAddress.city}
+                        <Form.Control required disabled={update} defaultValue={user[addressType].city}
                                       name="city"
                                       placeholder="Stadt"/>
                         <Form.Control.Feedback type="invalid">
@@ -39,7 +40,7 @@ class BillingAddressForm extends Component {
 
                     <Form.Group as={Col} controlId="formGridZip2">
                         <Form.Control required type="number" disabled={update}
-                                      defaultValue={user.billingAddress.plz} name="zip"
+                                      defaultValue={user[addressType].plz} name="zip"
                                       placeholder="PLZ"/>
                         <Form.Control.Feedback type="invalid">
                             Bitte geben Sie Ihre Postleitzahl ein.
@@ -49,7 +50,7 @@ class BillingAddressForm extends Component {
 
                 <Form.Group controlId="formGridState2">
                     <Form.Control required name="state" disabled={update} as="select"
-                                  defaultValue={user.billingAddress.state}>
+                                  defaultValue={user[addressType].state}>
                         <option>Deutschland</option>
                         <option>Österreich</option>
                         <option>Schweiz</option>
@@ -76,11 +77,12 @@ class BillingAddressForm extends Component {
     }
 }
 
-BillingAddressForm.propTypes = {
+AddressForm.propTypes = {
     validated: PropTypes.bool.isRequired,
     handleSubmit: PropTypes.func.isRequired,
     update: PropTypes.bool.isRequired,
     user: PropTypes.object.isRequired,
+    addressType: PropTypes.string.isRequired,
 };
 
-export default BillingAddressForm;
+export default AddressForm;

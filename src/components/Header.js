@@ -33,7 +33,7 @@ export class Header extends Component {
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="mr-auto">
                         <Link to="/konfigurator">
-                            Produkt
+                            Produktkonfigurator
                         </Link>
                     </Nav>
                     <Nav>
@@ -63,8 +63,8 @@ export class Header extends Component {
                                     </Dropdown.Toggle>
 
                                     <Dropdown.Menu>
-                                        <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                                        <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                                        <Link className="headerLink, dropdown-item" to="/benutzerprofil">Benutzerprofil</Link>
+                                        <Link className="headerLink, dropdown-item" to="/abonnements">Abonnements</Link>
                                         <Dropdown.Divider/>
                                         <Link className="headerLink, dropdown-item" to="/abmelden">Abmelden</Link>
                                     </Dropdown.Menu>

@@ -81,6 +81,32 @@ class LandingPage extends Component {
                         </p>
                     </Container>
                 </div>
+                {
+                    isLoggedIn ?
+                        <div className={"landingPageContainer"}>
+                            <Container>
+                                <h1>Was möchten Sie heute tun?</h1>
+                                <p>
+                                    Ihre Daten können Sie im Benutzerprofil einsehen und ändern:
+                                </p>
+                                <p>
+                                    <Button variant="outline-success" onClick={() => {
+                                        this.props.history.push(`/benutzerprofil`)
+                                    }}>Zum Benutzerprofil</Button>
+                                </p>
+                                <p>
+                                    Einen Überblick über Ihre abgeschlossenen Abonnements finden Sie hier.<br/>
+                                    Ebenfalls können Sie ganz gemütlich ein Abonnement über das Abonnement Menu stornieren.
+                                </p>
+                                <p>
+                                    <Button variant="outline-warning" onClick={() => {
+                                        this.props.history.push(`/abonnements`)
+                                    }}>Zu Ihren Abonnements</Button>
+                                </p>
+                            </Container>
+                        </div>
+                        : ""
+                }
                 <div className={"landingPageContainer"}>
                     <Container>
                         <h1>Schließe noch heute ein Abo ab!</h1>
@@ -88,7 +114,7 @@ class LandingPage extends Component {
                             In unserem individuellen Abokonfigurator finden Sie bestimmt das wonach Sie suchen.
                         </p>
                         <p>
-                            <Button variant="primary" onClick={() => {
+                            <Button variant="outline-primary" onClick={() => {
                                 this.props.history.push(`/konfigurator`)
                             }}>Konfigurator starten</Button>
                         </p>
@@ -102,7 +128,7 @@ class LandingPage extends Component {
                             Konfigurieren Sie Ihr ganz persönliches Abonnement jetzt!
                         </p>
                         <p>
-                            <Button variant="primary" onClick={() => {
+                            <Button variant="outline-primary" onClick={() => {
                                 this.props.history.push(`/konfigurator`)
                             }}>Konfigurator starten</Button>
                         </p>

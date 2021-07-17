@@ -240,3 +240,12 @@ body {
     display: block !important;
     margin-bottom: 1rem;
 }
+
+.btnEditUserData {
+    margin-left: auto;
+    display: block !important;
+    border-radius: 50% !important;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 !important;
+}

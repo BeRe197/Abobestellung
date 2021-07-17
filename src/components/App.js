@@ -6,12 +6,15 @@ import LandingPage from "./LandingPage";
 import Registrieren from "./Registrieren";
 import Login from "./Login";
 import Step1Delivery from "./configurator/Step1Delivery";
-
-import '../assets/style/App.css'
 import Step2Detail from "./configurator/Step2Detail";
 import Step3Checkout from "./configurator/Step3Checkout";
+import Userprofile from "./user/Userprofile";
+import Abonnements from "./user/Abonnements";
+
 import {updateCustomer} from "../api/Api";
 import ProtectedRoute from "./utils/ProtectedRoute";
+
+import '../assets/style/App.css'
 
 export class App extends Component {
 
@@ -25,6 +28,7 @@ export class App extends Component {
         this.handleChangeHint = this.handleChangeHint.bind(this)
         this.onAboCreate = this.onAboCreate.bind(this)
         this.onCustomerUpdate = this.onCustomerUpdate.bind(this)
+        this.clearAbo = this.clearAbo.bind(this)
 
         const minDate = new Date();
         minDate.setDate(minDate.getDate() + 2);
@@ -80,6 +84,7 @@ export class App extends Component {
                     state: "",
                 },
             },
+            abo: {},
         })
         this.props.history.push(`/`)
         return null
@@ -133,6 +138,12 @@ export class App extends Component {
         })
     }
 
+    clearAbo() {
+        this.setState({
+            abo: {},
+        })
+    }
+
     render() {
 
         const {isLoggedIn, user, startDate, hint, abo} = this.state
@@ -152,9 +163,13 @@ export class App extends Component {
                                     onAboCreate={this.onAboCreate}/>
                     <ProtectedRoute exact path="/konfigurator/checkout" isAuth={isLoggedIn}
                                     component={Step3Checkout} user={user} abo={abo} isLoggedIn={isLoggedIn}
-                                    onCustomerUpdate={this.onCustomerUpdate}/>
+                                    onCustomerUpdate={this.onCustomerUpdate} clearAbo={this.clearAbo}/>
                     <ProtectedRoute exact path="/checkout" isAuth={isLoggedIn} component={LandingPage}
                                     isLoggedIn={isLoggedIn} userName={user.email} showToast/>
+                    <ProtectedRoute exact path="/benutzerprofil" isAuth={isLoggedIn}
+                                    component={Userprofile} user={user} onCustomerUpdate={this.onCustomerUpdate}/>
+                    <ProtectedRoute exact path="/abonnements" isAuth={isLoggedIn}
+                                    component={Abonnements} abo={abo}/>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>

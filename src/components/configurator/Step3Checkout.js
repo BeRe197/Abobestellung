@@ -12,7 +12,7 @@ import ListGroup from "react-bootstrap/ListGroup";
 import Modal from "react-bootstrap/Modal";
 import {saveAboForCustomer} from "../../api/Api";
 import Spinner from "react-bootstrap/Spinner";
-import BillingAddressForm from "../fragment/BillingAddressForm";
+import AddressForm from "../fragment/AddressForm";
 import Toast from "react-bootstrap/Toast";
 import {ImCheckmark} from "react-icons/all";
 
@@ -217,6 +217,7 @@ class Step3Checkout extends Component {
                 this.setState({
                     saving: false,
                 })
+                this.props.clearAbo()
                 this.props.history.push(`/checkout`)
             })
         }
@@ -495,8 +496,8 @@ class Step3Checkout extends Component {
                         <Modal.Title>Rechnungsadresse aktualisieren</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{textAlign: "center"}}>
-                        <BillingAddressForm validated={validatedDelAddress} handleSubmit={this.handleUserUpdate}
-                                            update={updateDelAddress} user={user}/>
+                        <AddressForm validated={validatedDelAddress} handleSubmit={this.handleUserUpdate}
+                                     update={updateDelAddress} user={user} addressType={"billingAddress"}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" disabled={saving} onClick={this.handleCloseDelAddress}>
@@ -530,6 +531,7 @@ Step3Checkout.propTypes = {
     user: PropTypes.object.isRequired,
     abo: PropTypes.object.isRequired,
     onCustomerUpdate: PropTypes.func.isRequired,
+    clearAbo: PropTypes.func.isRequired,
 };
 
 export default withRouter(Step3Checkout);

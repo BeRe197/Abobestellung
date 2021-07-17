@@ -11,7 +11,7 @@ import Step3Checkout from "./configurator/Step3Checkout";
 import Userprofile from "./user/Userprofile";
 import Abonnements from "./user/Abonnements";
 
-import {updateCustomer} from "../api/Api";
+import {deleteCustomer, updateCustomer} from "../api/Api";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
 import '../assets/style/App.css'
@@ -29,6 +29,7 @@ export class App extends Component {
         this.onAboCreate = this.onAboCreate.bind(this)
         this.onCustomerUpdate = this.onCustomerUpdate.bind(this)
         this.clearAbo = this.clearAbo.bind(this)
+        this.onCustomerDelete = this.onCustomerDelete.bind(this)
 
         const minDate = new Date();
         minDate.setDate(minDate.getDate() + 2);
@@ -120,6 +121,17 @@ export class App extends Component {
         })
     }
 
+    onCustomerDelete() {
+        return new Promise((resolve, reject) => {
+            deleteCustomer(this.state.user.id).then((erg) => {
+                this.handleLogOut()
+                resolve(erg)
+            }, () => {
+                reject("Error while deleting user")
+            })
+        })
+    }
+
     handleStartDateChange(date) {
         this.setState({
             startDate: date,
@@ -167,7 +179,8 @@ export class App extends Component {
                     <ProtectedRoute exact path="/checkout" isAuth={isLoggedIn} component={LandingPage}
                                     isLoggedIn={isLoggedIn} userName={user.email} showToast/>
                     <ProtectedRoute exact path="/benutzerprofil" isAuth={isLoggedIn}
-                                    component={Userprofile} user={user} onCustomerUpdate={this.onCustomerUpdate}/>
+                                    component={Userprofile} user={user} onCustomerUpdate={this.onCustomerUpdate}
+                                    onCustomerDelete={this.onCustomerDelete}/>
                     <ProtectedRoute exact path="/abonnements" isAuth={isLoggedIn}
                                     component={Abonnements} abo={abo}/>
                     <Route exact path="/anmelden">

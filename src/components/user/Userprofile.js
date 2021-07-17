@@ -10,6 +10,7 @@ import {MdEdit} from "react-icons/all";
 import Modal from "react-bootstrap/Modal";
 import AddressForm from "../fragment/AddressForm";
 import UserForm from "../fragment/UserForm";
+import Spinner from "react-bootstrap/Spinner";
 
 class Userprofile extends Component {
 
@@ -19,6 +20,8 @@ class Userprofile extends Component {
         this.handleCloseBilAddress = this.handleCloseBilAddress.bind(this)
         this.handleCloseDelAddress = this.handleCloseDelAddress.bind(this)
         this.handleCloseUser = this.handleCloseUser.bind(this)
+        this.handleCloseDeleteUser = this.handleCloseDeleteUser.bind(this)
+        this.handleDeleteUser = this.handleDeleteUser.bind(this)
 
         this.state = {
             showModalBilAddress: false,
@@ -30,6 +33,8 @@ class Userprofile extends Component {
             showModalUser: false,
             validateUser: false,
             updateUser: false,
+            showModalDeleteUser: false,
+            deleteUser: false,
         }
     }
 
@@ -169,6 +174,35 @@ class Userprofile extends Component {
         }
     }
 
+    handleCloseDeleteUser() {
+        if (!this.state.deleteUser) {
+            this.setState({
+                showModalDeleteUser: false,
+            })
+        }
+    }
+
+    handleDeleteUser() {
+        this.setState({
+            deleteUser: true,
+        })
+        this.props.onCustomerDelete()
+            .then((response) => {
+                console.log("User deleted " + Object.values(response))
+                this.setState({
+                    showModalDeleteUser: false,
+                    deleteUser: false,
+                })
+            })
+            .catch((err) => {
+                console.log('There was an error:' + err)
+                this.setState({
+                    showModalDeleteUser: false,
+                    deleteUser: false,
+                })
+            })
+    }
+
     render() {
 
         const {user} = this.props
@@ -182,6 +216,8 @@ class Userprofile extends Component {
             showModalUser,
             validateUser,
             updateUser,
+            showModalDeleteUser,
+            deleteUser,
         } = this.state
 
         return (
@@ -242,6 +278,22 @@ class Userprofile extends Component {
                         </ListGroup.Item>
                     </Col>
                 </Row>
+                <br/>
+                <Row>
+                    <Col>
+                        <ListGroup.Item>
+                            <h3>Benutzer löschen</h3>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            <p>Auf Ihren Wunsch werden wir ihre Benutzerdaten löschen!</p>
+                            <Button variant="danger" onClick={() => {
+                                this.setState({
+                                    showModalDeleteUser: true,
+                                })
+                            }}>Benutzer löschen</Button>{' '}
+                        </ListGroup.Item>
+                    </Col>
+                </Row>
                 <Modal show={showModalBilAddress} onHide={this.handleCloseBilAddress} backdrop="static" size="lg"
                        aria-labelledby="contained-modal-title-vcenter" centered>
                     <Modal.Header closeButton>
@@ -290,6 +342,34 @@ class Userprofile extends Component {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                <Modal show={showModalDeleteUser} onHide={this.handleCloseDeleteUser} backdrop="static" size="lg"
+                       aria-labelledby="contained-modal-title-vcenter" centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Benutzer löschen</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{textAlign: "left"}}>
+                        <p>Sind Sie sich sicher? Diese Option lässt sich nicht rückgängig machen!</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" disabled={deleteUser} onClick={this.handleCloseDeleteUser}>
+                            Abbrechen
+                        </Button>
+                        <Button variant="danger" disabled={deleteUser} onClick={this.handleDeleteUser}>
+                            {
+                                deleteUser ?
+                                    <Spinner
+                                        as="span"
+                                        animation="border"
+                                        size="md"
+                                        role="status"
+                                        aria-hidden="true"
+                                    />
+                                    :
+                                    "Benutzer endgültig löschen"
+                            }
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         );
     }
@@ -298,6 +378,7 @@ class Userprofile extends Component {
 Userprofile.propTypes = {
     user: PropTypes.object.isRequired,
     onCustomerUpdate: PropTypes.func.isRequired,
+    onCustomerDelete: PropTypes.func.isRequired,
 };
 
 export default Userprofile;

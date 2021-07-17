@@ -11,6 +11,7 @@ import '../assets/style/App.css'
 import Step2Detail from "./configurator/Step2Detail";
 import Step3Checkout from "./configurator/Step3Checkout";
 import {updateCustomer} from "../api/Api";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 export class App extends Component {
 
@@ -99,7 +100,7 @@ export class App extends Component {
         newUser.deliveryAddress[field] = value
         this.onCustomerUpdate(newUser)
             .then((response) => {
-                console.log("User updated " + Object.values(response))
+                console.log("User updated " + response.toString())
             })
             .catch(err => console.log('There was an error:' + err))
     }
@@ -147,17 +148,16 @@ export class App extends Component {
                         <Step1Delivery loginUser={this.loginUser} user={user} isLoggedIn={isLoggedIn}
                                        changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
-                    <Route exact path="/konfigurator/detail">
-                        <Step2Detail startDate={startDate} handleStartDateChange={this.handleStartDateChange}
-                                     hint={hint} handleChangeHint={this.handleChangeHint} user={user}
-                                     isLoggedIn={isLoggedIn} onAboCreate={this.onAboCreate}/>
-                    </Route>
-                    <Route exact path="/konfigurator/checkout">
-                        <Step3Checkout user={user} abo={abo} onCustomerUpdate={this.onCustomerUpdate}/>
-                    </Route>
-                    <Route exact path="/checkout">
-                        <LandingPage isLoggedIn={isLoggedIn} userName={user.email} showToast/>
-                    </Route>
+                    <ProtectedRoute exact path="/konfigurator/detail" isAuth={user.deliveryAddress.street !== ""}
+                                    component={Step2Detail} startDate={startDate}
+                                    handleStartDateChange={this.handleStartDateChange} hint={hint}
+                                    handleChangeHint={this.handleChangeHint} user={user} isLoggedIn={isLoggedIn}
+                                    onAboCreate={this.onAboCreate}/>
+                    <ProtectedRoute exact path="/konfigurator/checkout" isAuth={isLoggedIn}
+                                    component={Step3Checkout} user={user} abo={abo} isLoggedIn={isLoggedIn}
+                                    onCustomerUpdate={this.onCustomerUpdate}/>
+                    <ProtectedRoute exact path="/checkout" isAuth={isLoggedIn} component={LandingPage}
+                                    isLoggedIn={isLoggedIn} userName={user.email} showToast/>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>

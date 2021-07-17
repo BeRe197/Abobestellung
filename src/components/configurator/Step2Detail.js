@@ -42,67 +42,103 @@ class Step2Detail extends Component {
             calcDistance: 0,
             selectedAbo: "stadt",
             showModal: false,
+            otherCountry: false,
+            otherCountryDelivery: 50,
         }
     }
 
     componentDidMount() {
-        this._getDistanceFromPLZ()
-            .then(calcDistance => {
-                this._getLocalVersionsForPlz()
-                    .then(localVersion => {
-                        let stadt = false
-                        let sport = false
-                        let land = false
-                        Object.values(localVersion.localversions).forEach((version) => {
-                            // eslint-disable-next-line default-case
-                            switch (version.name) {
-                                case "Stadtausgabe":
-                                    stadt = true
-                                    break;
-                                case "Sportversion":
-                                    sport = true
-                                    break;
-                                case "Landkreisinfos":
-                                    land = true
-                                    break;
-                            }
-                        })
+        if (this.props.user.deliveryAddress.state === "Deutschland") {
+            this._getDistanceFromPLZ()
+                .then(calcDistance => {
+                    this._getLocalVersionsForPlz()
+                        .then(localVersion => {
+                            let stadt = false
+                            let sport = false
+                            let land = false
+                            Object.values(localVersion.localversions).forEach((version) => {
+                                // eslint-disable-next-line default-case
+                                switch (version.name) {
+                                    case "Stadtausgabe":
+                                        stadt = true
+                                        break;
+                                    case "Sportversion":
+                                        sport = true
+                                        break;
+                                    case "Landkreisinfos":
+                                        land = true
+                                        break;
+                                }
+                            })
 
-                        this.setState({
-                            calcDistance: calcDistance,
-                            isLoading: false,
-                            price: {
-                                sport: {
-                                    id: 2,
-                                    isAvailable: sport,
-                                    price: [
-                                        120,
-                                        12,
-                                    ]
+                            this.setState({
+                                calcDistance: calcDistance,
+                                isLoading: false,
+                                price: {
+                                    sport: {
+                                        id: 2,
+                                        isAvailable: sport,
+                                        price: [
+                                            120,
+                                            12,
+                                        ]
+                                    },
+                                    stadt: {
+                                        id: 1,
+                                        isAvailable: stadt,
+                                        price: [
+                                            110,
+                                            11,
+                                        ]
+                                    },
+                                    land: {
+                                        id: 3,
+                                        isAvailable: land,
+                                        price: [
+                                            130,
+                                            13,
+                                        ]
+                                    },
                                 },
-                                stadt: {
-                                    id: 1,
-                                    isAvailable: stadt,
-                                    price: [
-                                        110,
-                                        11,
-                                    ]
-                                },
-                                land: {
-                                    id: 3,
-                                    isAvailable: land,
-                                    price: [
-                                        130,
-                                        13,
-                                    ]
-                                },
-                            },
+                            })
+                            return true;
                         })
-                        return true;
-                    })
-                return true;
+                    return true;
+                })
+                .catch(err => console.log('There was an error:' + err))
+        } else {
+            this.setState({
+                calcDistance: 0,
+                isLoading: false,
+                otherCountry: true,
+                price: {
+                    sport: {
+                        id: 2,
+                        isAvailable: false,
+                        price: [
+                            120 + this.state.otherCountryDelivery,
+                            12 + this.state.otherCountryDelivery,
+                        ]
+                    },
+                    stadt: {
+                        id: 1,
+                        isAvailable: false,
+                        price: [
+                            110 + this.state.otherCountryDelivery,
+                            11 + this.state.otherCountryDelivery,
+                        ]
+                    },
+                    land: {
+                        id: 3,
+                        isAvailable: false,
+                        price: [
+                            130 + this.state.otherCountryDelivery,
+                            13 + this.state.otherCountryDelivery,
+                        ]
+                    },
+                },
             })
-            .catch(err => console.log('There was an error:' + err))
+        }
     }
 
     _getDistanceFromPLZ() {
@@ -193,7 +229,7 @@ class Step2Detail extends Component {
         const minDate = new Date();
         minDate.setDate(minDate.getDate() + 2);
 
-        if (this.props.startDate.setHours(0,0,0,0) >= minDate.setHours(0,0,0,0)) {
+        if (this.props.startDate.setHours(0, 0, 0, 0) >= minDate.setHours(0, 0, 0, 0)) {
             let newAbo = {
                 id: 0,
                 cid: this.props.isLoggedIn ? this.props.user.id : 0,
@@ -231,7 +267,18 @@ class Step2Detail extends Component {
 
     render() {
 
-        const {checkedYearly, period, price, currentPriceID, aboWeekend, isLoading, selectedAbo, showModal} = this.state
+        const {
+            checkedYearly,
+            period,
+            price,
+            currentPriceID,
+            aboWeekend,
+            isLoading,
+            selectedAbo,
+            showModal,
+            otherCountry,
+            otherCountryDelivery,
+        } = this.state
         const {startDate, handleStartDateChange, hint, handleChangeHint} = this.props
 
         const minDate = new Date();
@@ -316,8 +363,8 @@ class Step2Detail extends Component {
                                                             Entfernungspauschale</ListGroup.Item>
                                                         :
                                                         <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
-                                                            Versandkosten</ListGroup.Item>
+                                                            className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
+                                                            Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
                                                 }
                                                 <ListGroup.Item
                                                     className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
@@ -355,8 +402,8 @@ class Step2Detail extends Component {
                                                             Entfernungspauschale</ListGroup.Item>
                                                         :
                                                         <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
-                                                            Versandkosten</ListGroup.Item>
+                                                            className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
+                                                            Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
                                                 }
                                                 <ListGroup.Item
                                                     className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
@@ -394,8 +441,8 @@ class Step2Detail extends Component {
                                                             Entfernungspauschale</ListGroup.Item>
                                                         :
                                                         <ListGroup.Item
-                                                            className="detailVersionItem">inkl. {this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
-                                                            Versandkosten</ListGroup.Item>
+                                                            className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.getDistanceSupplement() === 0 ? "20" : this.getDistanceSupplement() * 2}€
+                                                            Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
                                                 }
                                                 <ListGroup.Item
                                                     className="detailVersionItem">{aboWeekend ? "Wochnendausgabe (Fr+Sa)" : "Tägliche Ausgabe"}</ListGroup.Item>
@@ -493,6 +540,7 @@ class Step2Detail extends Component {
             </>
         );
     }
+
 }
 
 Step2Detail.propTypes = {

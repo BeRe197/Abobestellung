@@ -15,6 +15,7 @@ import Spinner from "react-bootstrap/Spinner";
 import AddressForm from "../fragment/AddressForm";
 import Toast from "react-bootstrap/Toast";
 import {ImCheckmark} from "react-icons/all";
+import Abonnement from "../fragment/Abonnement";
 
 class Step3Checkout extends Component {
 
@@ -22,11 +23,6 @@ class Step3Checkout extends Component {
         super(props);
         this.handleTabChange = this.handleTabChange.bind(this)
         this.handlePaymentChange = this.handlePaymentChange.bind(this)
-        this.getAboVersion = this.getAboVersion.bind(this)
-        this.getAboPrice = this.getAboPrice.bind(this)
-        this.getAboVariant = this.getAboVariant.bind(this)
-        this.getDeliveryMethod = this.getDeliveryMethod.bind(this)
-        this.getPaymentType = this.getPaymentType.bind(this)
         this.handleLastschriftInfoChange = this.handleLastschriftInfoChange.bind(this)
         this.openModal = this.openModal.bind(this)
         this.handleClose = this.handleClose.bind(this)
@@ -37,6 +33,7 @@ class Step3Checkout extends Component {
         this.handleCloseDelAddressToastSuccess = this.handleCloseDelAddressToastSuccess.bind(this)
         this.handleCloseDelAddressToastError = this.handleCloseDelAddressToastError.bind(this)
         this.openChangeDelAddress = this.openChangeDelAddress.bind(this)
+        this.getAbo = this.getAbo.bind(this)
 
         this.formDataSec = React.createRef()
         this.formIBAN = React.createRef()
@@ -82,58 +79,6 @@ class Step3Checkout extends Component {
         this.setState((prevState) => ({
             lastschrift: !prevState.lastschrift,
         }))
-    }
-
-    getAboVersion() {
-        // eslint-disable-next-line default-case
-        switch (this.props.abo.localpaperversions) {
-            case 1:
-                return "Stadtausgabe"
-            case 2:
-                return "Sportversion"
-            case 3:
-                return "Landkreisinfo"
-        }
-    }
-
-    getAboPrice() {
-        let price
-        let deliveryMethod
-
-        if (this.props.abo.payment === "Annual") {
-            price = this.props.abo.calculatedyearprice
-            deliveryMethod = "Jahr"
-        } else {
-            price = this.props.abo.calculatedprice
-            deliveryMethod = "Monat"
-        }
-
-        return price + "€/" + deliveryMethod
-    }
-
-    getAboVariant() {
-        return this.props.abo.subscriptiontype === "Weekend" ? "Wochenende" : "Täglich"
-    }
-
-    getDeliveryMethod() {
-        return this.props.abo.deliverymethod === "Post" ? "Post" : "Austräger"
-    }
-
-    getPaymentType() {
-        if (this.state.lastschrift) {
-            return (
-                <>
-                    <p>Per <b>Lastschrift</b></p>
-                    <p><b>IBAN:</b> {this.state.IBAN}</p>
-                    <p><b>BIC:</b> {this.state.BIC}</p>
-                    <p><b>Kontoinhaber:</b> {this.state.AccountHolder}</p>
-                </>
-            );
-        } else {
-            return (
-                <p>Per <b>Rechnung</b> an oben angegebene Adresse</p>
-            );
-        }
     }
 
     handleLastschriftInfoChange(event) {
@@ -267,6 +212,18 @@ class Step3Checkout extends Component {
         this.setState({
             showModalDelAddress: true,
         })
+    }
+
+    getAbo() {
+        let newAbo = this.props.abo
+        newAbo.paymenttype = this.state.lastschrift ? "Direct Debit" : "Invoice"
+        if (this.state.lastschrift) {
+            newAbo.iban = this.state.IBAN
+            newAbo.bic = this.state.BIC
+            newAbo.AccountHolder = this.state.AccountHolder
+        }
+
+        return newAbo
     }
 
     render() {
@@ -420,31 +377,7 @@ class Step3Checkout extends Component {
                                 </Col>
                             </Row>
                             <br/>
-                            <Row>
-                                <Col>
-                                    <ListGroup.Item>
-                                        <h3>Aboinformationen</h3>
-                                    </ListGroup.Item>
-                                    <ListGroup.Item>
-                                        <p><b>Ausgabe:</b> {this.getAboVersion()}</p>
-                                        <p><b>Start:</b> {abo.startabodate}</p>
-                                        <p><b>Preis:</b> {this.getAboPrice()}</p>
-                                        <p><b>Abonnementvariante:</b> {this.getAboVariant()}</p>
-                                        <p><b>Liefermethode:</b> {this.getDeliveryMethod()}</p>
-                                        <p><b>Hinweis:</b> {abo.hintDeliveryMan}</p>
-                                    </ListGroup.Item>
-                                </Col>
-                                <Col>
-                                    <ListGroup.Item>
-                                        <h3>Zahlungsinformationen</h3>
-                                    </ListGroup.Item>
-                                    <ListGroup.Item>
-                                        {
-                                            this.getPaymentType()
-                                        }
-                                    </ListGroup.Item>
-                                </Col>
-                            </Row>
+                            <Abonnement abo={this.getAbo()} allowCancel={false}/>
                             <br/>
                             <Button variant="outline-secondary" style={{marginRight: "10px"}}
                                     onClick={() => (this.handleTabChange("#2"))}>Zurück</Button>

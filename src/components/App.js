@@ -182,7 +182,7 @@ export class App extends Component {
                                     component={Userprofile} user={user} onCustomerUpdate={this.onCustomerUpdate}
                                     onCustomerDelete={this.onCustomerDelete}/>
                     <ProtectedRoute exact path="/abonnements" isAuth={isLoggedIn}
-                                    component={Abonnements} abo={abo}/>
+                                    component={Abonnements} user={user}/>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>

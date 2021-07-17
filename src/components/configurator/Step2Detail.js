@@ -203,13 +203,13 @@ class Step2Detail extends Component {
                 dataprivacyaccepted: false,
                 abotype: "Printed",              //Printed or E-paper or Website
                 deliverymethod: this.state.price[this.state.selectedAbo].isAvailable ? "Delivery man" : "Post",          //Post or Delivery man
-                paymenttype: "",      //Credit Card or Direct debit
+                paymenttype: "",      //Invoice or Direct debit
                 payment: this.state.checkedYearly ? "Annual" : "Monthly",               //Monthly or Annual
                 subscriptiontype: this.state.aboWeekend ? "Weekend" : "Daily",       //Daily or Weekend
                 calculatedprice: this.state.price[this.state.selectedAbo].price[1],          //Each paper
                 calculatedyearprice: this.state.price[this.state.selectedAbo].price[0],      //Pay Yearly
                 localpaperversions: this.state.price[this.state.selectedAbo].id,         //Id from localpaperversions
-                hintDeliveryMan: this.state.price[this.state.selectedAbo].isAvailable ? this.state.hint : "", //additional hint for the Delivery man
+                hintDeliveryMan: this.state.price[this.state.selectedAbo].isAvailable ? this.props.hint : "", //additional hint for the Delivery man
             }
             this.props.onAboCreate(newAbo)
 

@@ -32,7 +32,9 @@ class Step1Delivery extends Component {
         this.state = {
             showModal: false,
             validatedAddress: false,
-            deliveryAddress: {},
+            deliveryAddress: {
+                state: "Deutschland"
+            },
         }
     }
 
@@ -178,7 +180,7 @@ class Step1Delivery extends Component {
                         <Card>
                             <Card.Body>
                                 <div className="priceTag">
-                                    <div className="priceTagValue">5€*</div>
+                                    <div className="priceTagValue">10€*</div>
                                 </div>
                                 <div className="priceTagText">
                                     Die Zeitung - Gedruckt

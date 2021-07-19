@@ -16,7 +16,7 @@ import Toast from "react-bootstrap/Toast";
 import {ImCheckmark} from "react-icons/all";
 import Abonnement from "../fragment/Abonnement";
 import {UserContext} from "../../providers/UserProvider";
-import {generateAboDocument} from "../../config/firebase";
+import {auth, generateAboDocument} from "../../config/firebase";
 
 class Step3Checkout extends Component {
     static contextType = UserContext
@@ -55,13 +55,28 @@ class Step3Checkout extends Component {
             validatedDelAddress: false,
             showDelAddressToastSuccess: false,
             showDelAddressToastError: false,
+            isLoading: true,
         }
     }
 
     componentDidMount() {
-        this.setState({
-            AccountHolder: this.context.user.firstname + " " + this.context.user.lastname,
-        })
+        if (this.context.user) {
+            this.setState({
+                AccountHolder: this.context.user.firstname + " " + this.context.user.lastname,
+                isLoading: false,
+            })
+        } else {
+            let that = this
+            auth.onAuthStateChanged(function (user) {
+                if (user) {
+                    that.setState({
+                        isLoading: false,
+                        AccountHolder: this.context.user.firstname + " " + this.context.user.lastname,
+                    })
+                }
+            })
+        }
+
     }
 
     handleTabChange(key) {
@@ -238,218 +253,249 @@ class Step3Checkout extends Component {
             validatedDelAddress,
             showDelAddressToastSuccess,
             showDelAddressToastError,
+            isLoading,
         } = this.state
 
         return (
-            <div className="landingPageContainer">
-                <Container>
-                    <h2 className="detailVersionChapter">Sie haben es gleich geschafft!</h2>
-                    <Tabs activeKey={key} id="checkout-tabs" className="mb-3">
-                        <Tab tabClassName="tabCheckout" eventKey="#1" title="Rechnungsadresse">
-                            <Button className="btnEditAddress" onClick={this.openChangeDelAddress} variant="primary">Rechnungsadresse
-                                bearbeiten</Button>
-                            <Form>
-                                <Form.Group controlId="formGridAddress2">
-                                    <Form.Control required disabled value={this.context.user.billingAddress.street}
-                                                  onChange={() => {}} placeholder="Straße"/>
-                                    <Form.Control.Feedback type="invalid">
-                                        Bitte geben Sie Ihre Straße ein.
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-
-                                <Form.Row>
-                                    <Form.Group as={Col} controlId="formGridCity2">
-                                        <Form.Control required disabled value={this.context.user.billingAddress.city}
-                                                      name="city" onChange={() => {}}
-                                                      placeholder="Stadt"/>
-                                        <Form.Control.Feedback type="invalid">
-                                            Bitte geben Sie Ihre Stadt ein.
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group as={Col} controlId="formGridZip2">
-                                        <Form.Control required type="number" disabled onChange={() => {}}
-                                                      value={this.context.user.billingAddress.plz} name="zip"
-                                                      placeholder="PLZ"/>
-                                        <Form.Control.Feedback type="invalid">
-                                            Bitte geben Sie Ihre Postleitzahl ein.
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-                                </Form.Row>
-
-                                <Form.Group controlId="formGridState2">
-                                    <Form.Control required name="state" disabled as="select" onChange={() => {}}
-                                                  value={this.context.user.billingAddress.state}>
-                                        <option>Deutschland</option>
-                                        <option>Österreich</option>
-                                        <option>Schweiz</option>
-                                        <option>Frankreich</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Form>
-                            <Button variant="outline-primary"
-                                    onClick={() => (this.handleTabChange("#2"))}>Weiter</Button>
-                        </Tab>
-                        <Tab tabClassName="tabCheckout" eventKey="#2" title="Zahlungsinformationen">
-                            <Typography component="div">
-                                <Grid component="label" container alignItems="center" justifyContent="center"
-                                      spacing={0}>
-                                    <Grid item>Rechnung</Grid>
-                                    <Grid item>
-                                        <Switch color={"secondary"} size="medium" checked={lastschrift}
-                                                onChange={this.handlePaymentChange} name="aboDailyWeekend"/>
-                                    </Grid>
-                                    <Grid item>Lastschrift</Grid>
-                                </Grid>
-                            </Typography>
-                            {
-                                lastschrift ?
-                                    <Form noValidate validated={validatedIBAN} ref={this.formIBAN}>
-                                        <Form.Group controlId="formGridIBAN">
-                                            <Form.Control name="IBAN" value={IBAN}
-                                                          onChange={this.handleLastschriftInfoChange} required
-                                                          placeholder="IBAN"/>
-                                            <Form.Control.Feedback type="invalid">
-                                                Bitte geben Sie Ihre IBAN ein.
-                                            </Form.Control.Feedback>
-                                        </Form.Group>
-                                        <Form.Group controlId="formGridBIC">
-                                            <Form.Control name="BIC" value={BIC}
-                                                          onChange={this.handleLastschriftInfoChange} required
-                                                          placeholder="BIC"/>
-                                            <Form.Control.Feedback type="invalid">
-                                                Bitte geben Sie Ihre BIC ein.
-                                            </Form.Control.Feedback>
-                                        </Form.Group>
-                                        <Form.Group controlId="formGridAccountHolder">
-                                            <Form.Control name="AccountHolder" value={AccountHolder}
-                                                          onChange={this.handleLastschriftInfoChange} required
-                                                          placeholder="Kontoinhalber"/>
-                                            <Form.Control.Feedback type="invalid">
-                                                Bitte geben Sie den Kontoinhaber ein.
-                                            </Form.Control.Feedback>
-                                        </Form.Group>
-                                    </Form>
-                                    : ""
-                            }
-                            <Button variant="outline-secondary" style={{marginRight: "10px"}}
-                                    onClick={() => (this.handleTabChange("#1"))}>Zurück</Button>
-                            <Button variant="outline-primary"
-                                    onClick={() => (this.handleTabChangeDirectDebit("#3"))}>Weiter</Button>
-                        </Tab>
-                        <Tab tabClassName="tabCheckout" eventKey="#3" title="Übersicht">
+            <>
+                {
+                    isLoading ?
+                        <Container>
                             <Row>
-                                <Col>
-                                    <ListGroup.Item>
-                                        <h3>Kundeninformationen</h3>
-                                    </ListGroup.Item>
-                                    <ListGroup.Item>
-                                        <p><b>Anrede:</b> {this.context.user.titleAddress}</p>
-                                        <p><b>Vorname:</b> {this.context.user.firstname}</p>
-                                        <p><b>Nachname:</b> {this.context.user.lastname}</p>
-                                        <p><b>Firmenname:</b> {this.context.user.companyname}</p>
-                                        <p><b>E-Mail:</b> {this.context.user.email}</p>
-                                        <p><b>Phone:</b> {this.context.user.phone}</p>
-                                    </ListGroup.Item>
-                                </Col>
-                                <Col>
-                                    <ListGroup.Item>
-                                        <h3>Adresse</h3>
-                                    </ListGroup.Item>
-                                    <ListGroup.Item>
-                                        <p><b>Lieferadresse:</b></p>
-                                        <p>{this.context.user.deliveryAddress.street}</p>
-                                        <p>{this.context.user.deliveryAddress.city + " " + this.context.user.deliveryAddress.plz}</p>
-                                        <p>{this.context.user.deliveryAddress.state}</p>
-                                    </ListGroup.Item>
-                                    <ListGroup.Item>
-                                        <p><b>Rechnungsadresse:</b></p>
-                                        <p>{this.context.user.billingAddress.street}</p>
-                                        <p>{this.context.user.billingAddress.city + " " + this.context.user.billingAddress.plz}</p>
-                                        <p>{this.context.user.billingAddress.state}</p>
-                                    </ListGroup.Item>
+                                <Col style={{textAlign: "center"}}>
+                                    <Spinner className="loadingSpinner" animation="border" variant="info"/>
                                 </Col>
                             </Row>
-                            <br/>
-                            <Abonnement abo={this.getAbo()} allowCancel={false}/>
-                            <br/>
-                            <Button variant="outline-secondary" style={{marginRight: "10px"}}
-                                    onClick={() => (this.handleTabChange("#2"))}>Zurück</Button>
-                            <Button variant="outline-primary" onClick={this.openModal}>Fertig</Button>
-                        </Tab>
-                    </Tabs>
-                </Container>
-                <Modal show={showModal} onHide={this.handleClose} backdrop="static" size="lg"
-                       aria-labelledby="contained-modal-title-vcenter" centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Checkout</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body style={{textAlign: "center"}}>
-                        <p>Möchten Sie das Abo verbindlich bestellen?</p>
-                        <Form noValidate validated={validatedDataSecurity} ref={this.formDataSec}>
-                            <Form.Group>
-                                <Form.Check>
-                                    <Form.Check.Input disabled={saving} required/>
-                                    <Form.Check.Label>Ich akzeptiere die Datenschatzbestimmungen</Form.Check.Label>
-                                    <Form.Control.Feedback type="invalid">Sie müssen dem Datenschutz
-                                        zustimmen!</Form.Control.Feedback>
-                                </Form.Check>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" disabled={saving} onClick={this.handleClose}>
-                            Abbrechen
-                        </Button>
-                        <Button variant="primary" disabled={saving} onClick={this.handleCheckoutAbo}>
-                            {
-                                saving ?
-                                    <Spinner
-                                        as="span"
-                                        animation="border"
-                                        size="md"
-                                        role="status"
-                                        aria-hidden="true"
-                                    />
-                                    :
-                                    "Bestellen"
-                            }
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-                <Modal show={showModalDelAddress} onHide={this.handleCloseDelAddress} backdrop="static" size="lg"
-                       aria-labelledby="contained-modal-title-vcenter" centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Rechnungsadresse aktualisieren</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body style={{textAlign: "center"}}>
-                        <AddressForm validated={validatedDelAddress} handleSubmit={this.handleUserUpdate}
-                                     update={updateDelAddress} addressType={"billingAddress"}/>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" disabled={saving} onClick={this.handleCloseDelAddress}>
-                            Abbrechen
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-                <Toast className="p-3 toastSuccess" onClose={this.handleCloseDelAddressToastSuccess}
-                       position={"bottom-center"} bg="success" show={showDelAddressToastSuccess} delay={3000} autohide>
-                    <Toast.Header closeButton={false}>
-                        <ImCheckmark style={{marginRight: "0.4rem"}}/>
-                        <strong className="me-auto">Erfolgreich</strong>
-                    </Toast.Header>
-                    <Toast.Body>Ihre Rechnungsadresse wurde erfolgreich aktualisiert!</Toast.Body>
-                </Toast>
-                <Toast className="p-3 toastError" onClose={this.handleCloseDelAddressToastError}
-                       position={"bottom-center"} show={showDelAddressToastError} delay={3000} autohide>
-                    <Toast.Header closeButton={false}>
-                        <ImCheckmark style={{marginRight: "0.4rem"}}/>
-                        <strong className="me-auto">Fehlgeschlagen</strong>
-                    </Toast.Header>
-                    <Toast.Body>Ihre Rechnungsadresse wurde leider nicht aktualisiert. Bitte versuchen Sie es später
-                        erneut!</Toast.Body>
-                </Toast>
-            </div>
+                        </Container>
+                        :
+                        <div className="landingPageContainer">
+                            <Container>
+                                <h2 className="detailVersionChapter">Sie haben es gleich geschafft!</h2>
+                                <Tabs activeKey={key} id="checkout-tabs" className="mb-3">
+                                    <Tab tabClassName="tabCheckout" eventKey="#1" title="Rechnungsadresse">
+                                        <Button className="btnEditAddress" onClick={this.openChangeDelAddress}
+                                                variant="primary">Rechnungsadresse
+                                            bearbeiten</Button>
+                                        <Form>
+                                            <Form.Group controlId="formGridAddress2">
+                                                <Form.Control required disabled
+                                                              value={this.context.user.billingAddress.street}
+                                                              onChange={() => {
+                                                              }} placeholder="Straße"/>
+                                                <Form.Control.Feedback type="invalid">
+                                                    Bitte geben Sie Ihre Straße ein.
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+
+                                            <Form.Row>
+                                                <Form.Group as={Col} controlId="formGridCity2">
+                                                    <Form.Control required disabled
+                                                                  value={this.context.user.billingAddress.city}
+                                                                  name="city" onChange={() => {
+                                                    }}
+                                                                  placeholder="Stadt"/>
+                                                    <Form.Control.Feedback type="invalid">
+                                                        Bitte geben Sie Ihre Stadt ein.
+                                                    </Form.Control.Feedback>
+                                                </Form.Group>
+
+                                                <Form.Group as={Col} controlId="formGridZip2">
+                                                    <Form.Control required type="number" disabled onChange={() => {
+                                                    }}
+                                                                  value={this.context.user.billingAddress.plz}
+                                                                  name="zip"
+                                                                  placeholder="PLZ"/>
+                                                    <Form.Control.Feedback type="invalid">
+                                                        Bitte geben Sie Ihre Postleitzahl ein.
+                                                    </Form.Control.Feedback>
+                                                </Form.Group>
+                                            </Form.Row>
+
+                                            <Form.Group controlId="formGridState2">
+                                                <Form.Control required name="state" disabled as="select"
+                                                              onChange={() => {
+                                                              }}
+                                                              value={this.context.user.billingAddress.state}>
+                                                    <option>Deutschland</option>
+                                                    <option>Österreich</option>
+                                                    <option>Schweiz</option>
+                                                    <option>Frankreich</option>
+                                                </Form.Control>
+                                            </Form.Group>
+                                        </Form>
+                                        <Button variant="outline-primary"
+                                                onClick={() => (this.handleTabChange("#2"))}>Weiter</Button>
+                                    </Tab>
+                                    <Tab tabClassName="tabCheckout" eventKey="#2" title="Zahlungsinformationen">
+                                        <Typography component="div">
+                                            <Grid component="label" container alignItems="center"
+                                                  justifyContent="center"
+                                                  spacing={0}>
+                                                <Grid item>Rechnung</Grid>
+                                                <Grid item>
+                                                    <Switch color={"secondary"} size="medium" checked={lastschrift}
+                                                            onChange={this.handlePaymentChange} name="aboDailyWeekend"/>
+                                                </Grid>
+                                                <Grid item>Lastschrift</Grid>
+                                            </Grid>
+                                        </Typography>
+                                        {
+                                            lastschrift ?
+                                                <Form noValidate validated={validatedIBAN} ref={this.formIBAN}>
+                                                    <Form.Group controlId="formGridIBAN">
+                                                        <Form.Control name="IBAN" value={IBAN}
+                                                                      onChange={this.handleLastschriftInfoChange}
+                                                                      required
+                                                                      placeholder="IBAN"/>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            Bitte geben Sie Ihre IBAN ein.
+                                                        </Form.Control.Feedback>
+                                                    </Form.Group>
+                                                    <Form.Group controlId="formGridBIC">
+                                                        <Form.Control name="BIC" value={BIC}
+                                                                      onChange={this.handleLastschriftInfoChange}
+                                                                      required
+                                                                      placeholder="BIC"/>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            Bitte geben Sie Ihre BIC ein.
+                                                        </Form.Control.Feedback>
+                                                    </Form.Group>
+                                                    <Form.Group controlId="formGridAccountHolder">
+                                                        <Form.Control name="AccountHolder" value={AccountHolder}
+                                                                      onChange={this.handleLastschriftInfoChange}
+                                                                      required
+                                                                      placeholder="Kontoinhalber"/>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            Bitte geben Sie den Kontoinhaber ein.
+                                                        </Form.Control.Feedback>
+                                                    </Form.Group>
+                                                </Form>
+                                                : ""
+                                        }
+                                        <Button variant="outline-secondary" style={{marginRight: "10px"}}
+                                                onClick={() => (this.handleTabChange("#1"))}>Zurück</Button>
+                                        <Button variant="outline-primary"
+                                                onClick={() => (this.handleTabChangeDirectDebit("#3"))}>Weiter</Button>
+                                    </Tab>
+                                    <Tab tabClassName="tabCheckout" eventKey="#3" title="Übersicht">
+                                        <Row>
+                                            <Col>
+                                                <ListGroup.Item>
+                                                    <h3>Kundeninformationen</h3>
+                                                </ListGroup.Item>
+                                                <ListGroup.Item>
+                                                    <p><b>Anrede:</b> {this.context.user.titleAddress}</p>
+                                                    <p><b>Vorname:</b> {this.context.user.firstname}</p>
+                                                    <p><b>Nachname:</b> {this.context.user.lastname}</p>
+                                                    <p><b>Firmenname:</b> {this.context.user.companyname}</p>
+                                                    <p><b>E-Mail:</b> {this.context.user.email}</p>
+                                                    <p><b>Phone:</b> {this.context.user.phone}</p>
+                                                </ListGroup.Item>
+                                            </Col>
+                                            <Col>
+                                                <ListGroup.Item>
+                                                    <h3>Adresse</h3>
+                                                </ListGroup.Item>
+                                                <ListGroup.Item>
+                                                    <p><b>Lieferadresse:</b></p>
+                                                    <p>{this.context.user.deliveryAddress.street}</p>
+                                                    <p>{this.context.user.deliveryAddress.city + " " + this.context.user.deliveryAddress.plz}</p>
+                                                    <p>{this.context.user.deliveryAddress.state}</p>
+                                                </ListGroup.Item>
+                                                <ListGroup.Item>
+                                                    <p><b>Rechnungsadresse:</b></p>
+                                                    <p>{this.context.user.billingAddress.street}</p>
+                                                    <p>{this.context.user.billingAddress.city + " " + this.context.user.billingAddress.plz}</p>
+                                                    <p>{this.context.user.billingAddress.state}</p>
+                                                </ListGroup.Item>
+                                            </Col>
+                                        </Row>
+                                        <br/>
+                                        <Abonnement abo={this.getAbo()} allowCancel={false}/>
+                                        <br/>
+                                        <Button variant="outline-secondary" style={{marginRight: "10px"}}
+                                                onClick={() => (this.handleTabChange("#2"))}>Zurück</Button>
+                                        <Button variant="outline-primary" onClick={this.openModal}>Fertig</Button>
+                                    </Tab>
+                                </Tabs>
+                            </Container>
+                            <Modal show={showModal} onHide={this.handleClose} backdrop="static" size="lg"
+                                   aria-labelledby="contained-modal-title-vcenter" centered>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Checkout</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body style={{textAlign: "center"}}>
+                                    <p>Möchten Sie das Abo verbindlich bestellen?</p>
+                                    <Form noValidate validated={validatedDataSecurity} ref={this.formDataSec}>
+                                        <Form.Group>
+                                            <Form.Check>
+                                                <Form.Check.Input disabled={saving} required/>
+                                                <Form.Check.Label>Ich akzeptiere die
+                                                    Datenschatzbestimmungen</Form.Check.Label>
+                                                <Form.Control.Feedback type="invalid">Sie müssen dem Datenschutz
+                                                    zustimmen!</Form.Control.Feedback>
+                                            </Form.Check>
+                                        </Form.Group>
+                                    </Form>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" disabled={saving} onClick={this.handleClose}>
+                                        Abbrechen
+                                    </Button>
+                                    <Button variant="primary" disabled={saving} onClick={this.handleCheckoutAbo}>
+                                        {
+                                            saving ?
+                                                <Spinner
+                                                    as="span"
+                                                    animation="border"
+                                                    size="md"
+                                                    role="status"
+                                                    aria-hidden="true"
+                                                />
+                                                :
+                                                "Bestellen"
+                                        }
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
+                            <Modal show={showModalDelAddress} onHide={this.handleCloseDelAddress} backdrop="static"
+                                   size="lg"
+                                   aria-labelledby="contained-modal-title-vcenter" centered>
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Rechnungsadresse aktualisieren</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body style={{textAlign: "center"}}>
+                                    <AddressForm validated={validatedDelAddress} handleSubmit={this.handleUserUpdate}
+                                                 update={updateDelAddress} addressType={"billingAddress"}/>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" disabled={saving} onClick={this.handleCloseDelAddress}>
+                                        Abbrechen
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
+                            <Toast className="p-3 toastSuccess" onClose={this.handleCloseDelAddressToastSuccess}
+                                   position={"bottom-center"} bg="success" show={showDelAddressToastSuccess}
+                                   delay={3000} autohide>
+                                <Toast.Header closeButton={false}>
+                                    <ImCheckmark style={{marginRight: "0.4rem"}}/>
+                                    <strong className="me-auto">Erfolgreich</strong>
+                                </Toast.Header>
+                                <Toast.Body>Ihre Rechnungsadresse wurde erfolgreich aktualisiert!</Toast.Body>
+                            </Toast>
+                            <Toast className="p-3 toastError" onClose={this.handleCloseDelAddressToastError}
+                                   position={"bottom-center"} show={showDelAddressToastError} delay={3000} autohide>
+                                <Toast.Header closeButton={false}>
+                                    <ImCheckmark style={{marginRight: "0.4rem"}}/>
+                                    <strong className="me-auto">Fehlgeschlagen</strong>
+                                </Toast.Header>
+                                <Toast.Body>Ihre Rechnungsadresse wurde leider nicht aktualisiert. Bitte versuchen Sie
+                                    es später
+                                    erneut!</Toast.Body>
+                            </Toast>
+                        </div>
+                }
+            </>
         );
     }
 }

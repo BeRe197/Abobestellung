@@ -94,24 +94,24 @@ class Step2Detail extends Component {
                                         id: 2,
                                         isAvailable: sport,
                                         price: [
-                                            120,
-                                            12,
+                                            130,
+                                            17,
                                         ]
                                     },
                                     stadt: {
                                         id: 1,
                                         isAvailable: stadt,
                                         price: [
-                                            110,
-                                            11,
+                                            120,
+                                            16,
                                         ]
                                     },
                                     land: {
                                         id: 3,
                                         isAvailable: land,
                                         price: [
-                                            130,
-                                            13,
+                                            140,
+                                            18,
                                         ]
                                     },
                                 },
@@ -128,24 +128,24 @@ class Step2Detail extends Component {
                         id: 2,
                         isAvailable: false,
                         price: [
-                            120 + this.state.otherCountryDelivery,
-                            12 + this.state.otherCountryDelivery,
+                            130 + this.state.otherCountryDelivery,
+                            17 + (this.state.otherCountryDelivery / 2),
                         ]
                     },
                     stadt: {
                         id: 1,
                         isAvailable: false,
                         price: [
-                            110 + this.state.otherCountryDelivery,
-                            11 + this.state.otherCountryDelivery,
+                            120 + this.state.otherCountryDelivery,
+                            16 + (this.state.otherCountryDelivery / 2),
                         ]
                     },
                     land: {
                         id: 3,
                         isAvailable: false,
                         price: [
-                            130 + this.state.otherCountryDelivery,
-                            13 + this.state.otherCountryDelivery,
+                            140 + this.state.otherCountryDelivery,
+                            18 + (this.state.otherCountryDelivery / 2),
                         ]
                     },
                 },

@@ -50,7 +50,7 @@ class AboEdition extends Component {
                                 Entfernungspauschale</ListGroup.Item>
                             :
                             <ListGroup.Item
-                                className="detailVersionItem">inkl. {otherCountry ? otherCountryDelivery : this.props.getDistanceSupplement() === 0 ? "20" : this.props.getDistanceSupplement() * 2}€
+                                className="detailVersionItem">inkl. {otherCountry ? currentPriceID === 0 ? otherCountryDelivery : (otherCountryDelivery / 2) : this.props.getDistanceSupplement() === 0 ? "20" : this.props.getDistanceSupplement() * 2}€
                                 Versandkosten {otherCountry ? "(International)" : ""}</ListGroup.Item>
                     }
                     <ListGroup.Item

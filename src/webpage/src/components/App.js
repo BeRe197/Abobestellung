@@ -12,8 +12,8 @@ import Userprofile from "./user/Userprofile";
 import Abonnements from "./user/Abonnements";
 import GoodbyePage from "./GoodbyePage";
 
-import {deleteCustomer, updateCustomer} from "../api/Api";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import ProtectedRouteAboDetail from "./utils/ProtectedRouteAboDetail";
 import {auth, deleteUserDocument, updateUserDocument} from "../config/firebase";
 import {UserContext} from "../providers/UserProvider";
 
@@ -127,7 +127,7 @@ export class App extends Component {
 
     render() {
 
-        const {startDate, hint, abo, deliveryAddress} = this.state
+        const {startDate, hint, abo, tempDeliveryAddress} = this.state
 
         return (
             <>
@@ -136,11 +136,10 @@ export class App extends Component {
                     <Route exact path="/konfigurator">
                         <Step1Delivery changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
-                    {/*TODO: Check if adrress is available*/}
-                    <ProtectedRoute exact path="/konfigurator/detail" deliveryAddress={deliveryAddress}
-                                    component={Step2Detail} startDate={startDate}
-                                    handleStartDateChange={this.handleStartDateChange} hint={hint}
-                                    handleChangeHint={this.handleChangeHint} onAboCreate={this.onAboCreate}/>
+                    <ProtectedRouteAboDetail exact path="/konfigurator/detail" deliveryAddress={tempDeliveryAddress}
+                                             component={Step2Detail} startDate={startDate}
+                                             handleStartDateChange={this.handleStartDateChange} hint={hint}
+                                             handleChangeHint={this.handleChangeHint} onAboCreate={this.onAboCreate}/>
                     <ProtectedRoute exact path="/konfigurator/checkout" component={Step3Checkout} abo={abo}
                                     onCustomerUpdate={this.onCustomerUpdate} clearAbo={this.clearAbo}/>
                     <ProtectedRoute exact path="/checkout" component={GoodbyePage} showToast/>
@@ -151,7 +150,7 @@ export class App extends Component {
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>
                     <Route exact path="/registrieren">
-                        <Registrieren handleLogIn={this.handleLogIn} deliveryAddress={deliveryAddress}/>
+                        <Registrieren handleLogIn={this.handleLogIn} deliveryAddress={tempDeliveryAddress}/>
                     </Route>
                     <Route exact path="/abmelden">
                         {this.handleLogOut}

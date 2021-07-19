@@ -14,16 +14,18 @@ import GoodbyePage from "./GoodbyePage";
 
 import {deleteCustomer, updateCustomer} from "../api/Api";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import {auth, deleteUserDocument, updateUserDocument} from "../config/firebase";
+import {UserContext} from "../providers/UserProvider";
 
 import '../assets/style/App.css'
 
 export class App extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props)
         this.handleLogIn = this.handleLogIn.bind(this)
         this.handleLogOut = this.handleLogOut.bind(this)
-        this.loginUser = this.loginUser.bind(this)
         this.changeDeliveryAddress = this.changeDeliveryAddress.bind(this)
         this.handleStartDateChange = this.handleStartDateChange.bind(this)
         this.handleChangeHint = this.handleChangeHint.bind(this)
@@ -34,22 +36,7 @@ export class App extends Component {
         this.getMinDate = this.getMinDate.bind(this)
 
         this.state = {
-            isLoggedIn: false,
-            user: {
-                email: "",
-                deliveryAddress: {
-                    city: "",
-                    plz: "",
-                    street: "",
-                    state: "Deutschland",
-                },
-                billingAddress: {
-                    city: "",
-                    plz: "",
-                    street: "",
-                    state: "Deutschland",
-                },
-            },
+            tempDeliveryAddress: {},
             startDate: this.getMinDate(),
             hint: "",
             abo: {},
@@ -63,9 +50,7 @@ export class App extends Component {
         return minDate
     }
 
-    handleLogIn(user) {
-        this.loginUser(user)
-        // TODO: Check from where the login form was called and route correctly back
+    handleLogIn() {
         if (Object.keys(this.state.abo).length === 0 && this.state.abo.constructor === Object) {
             this.props.history.push(`/`)
         } else {
@@ -75,67 +60,41 @@ export class App extends Component {
 
     handleLogOut() {
         this.setState({
-            isLoggedIn: false,
-            user: {
-                email: "",
-                deliveryAddress: {
-                    city: "",
-                    plz: "",
-                    street: "",
-                    state: "Deutschland",
-                },
-                billingAddress: {
-                    city: "",
-                    plz: "",
-                    street: "",
-                    state: "Deutschland",
-                },
-            },
+            tempDeliveryAddress: {},
             abo: {},
             startDate: this.getMinDate(),
             hint: "",
         })
-        this.props.history.push(`/`)
+        auth.signOut()
+            .then(this.props.history.push(`/`))
+            .catch(err => console.error("Error during signout", err))
         return null
     }
 
-    loginUser(user) {
-        this.setState({
-            isLoggedIn: true,
-            user: user,
-        })
+    async changeDeliveryAddress(deliveryAddress) {
+        if (this.context.user) {
+            const newDeliveryAddress = {...this.context.user.deliveryAddress, ...deliveryAddress}
+            await this.onCustomerUpdate({deliveryAddress: newDeliveryAddress})
+        } else {
+            this.setState({
+                tempDeliveryAddress: deliveryAddress,
+            })
+        }
     }
 
-    changeDeliveryAddress(field, value) {
-        const newUser = this.state.user
-        newUser.deliveryAddress[field] = value
-        this.onCustomerUpdate(newUser)
-            .then((response) => {
-                console.log("User updated " + response.toString())
-            })
-            .catch(err => console.log('There was an error:' + err))
-    }
-
-    onCustomerUpdate(updatedCustomer) {
-        return new Promise((resolve, reject) => {
-            updateCustomer(updatedCustomer).then((erg) => {
-                this.setState({
-                    user: updatedCustomer
-                })
-                resolve(erg)
-            }, () => {
-                reject("Error while updating user")
-            })
-        })
+    async onCustomerUpdate(updatedCustomer) {
+        await updateUserDocument(this.context.user, updatedCustomer)
+        await this.context.updateUser()
     }
 
     onCustomerDelete() {
         return new Promise((resolve, reject) => {
-            deleteCustomer(this.state.user.id).then((erg) => {
-                this.handleLogOut()
-                resolve(erg)
-            }, () => {
-                reject("Error while deleting user")
+            const user = auth.currentUser
+            user.delete().then(async () => {
+                await deleteUserDocument(user)
+                resolve()
+            }).catch((error) => {
+                reject(error)
             })
         })
     }
@@ -168,42 +127,37 @@ export class App extends Component {
 
     render() {
 
-        const {isLoggedIn, user, startDate, hint, abo} = this.state
+        const {startDate, hint, abo, deliveryAddress} = this.state
 
         return (
             <>
-                <Header isLoggedIn={isLoggedIn} userName={user.email}/>
+                <Header/>
                 <Switch>
                     <Route exact path="/konfigurator">
-                        <Step1Delivery loginUser={this.loginUser} user={user} isLoggedIn={isLoggedIn}
-                                       changeDeliveryAddress={this.changeDeliveryAddress}/>
+                        <Step1Delivery changeDeliveryAddress={this.changeDeliveryAddress}/>
                     </Route>
-                    <ProtectedRoute exact path="/konfigurator/detail" isAuth={user.deliveryAddress.street !== ""}
+                    {/*TODO: Check if adrress is available*/}
+                    <ProtectedRoute exact path="/konfigurator/detail" deliveryAddress={deliveryAddress}
                                     component={Step2Detail} startDate={startDate}
                                     handleStartDateChange={this.handleStartDateChange} hint={hint}
-                                    handleChangeHint={this.handleChangeHint} user={user} isLoggedIn={isLoggedIn}
-                                    onAboCreate={this.onAboCreate}/>
-                    <ProtectedRoute exact path="/konfigurator/checkout" isAuth={isLoggedIn}
-                                    component={Step3Checkout} user={user} abo={abo} isLoggedIn={isLoggedIn}
+                                    handleChangeHint={this.handleChangeHint} onAboCreate={this.onAboCreate}/>
+                    <ProtectedRoute exact path="/konfigurator/checkout" component={Step3Checkout} abo={abo}
                                     onCustomerUpdate={this.onCustomerUpdate} clearAbo={this.clearAbo}/>
-                    <ProtectedRoute exact path="/checkout" isAuth={isLoggedIn} component={GoodbyePage}
-                                    isLoggedIn={isLoggedIn} user={user} showToast/>
-                    <ProtectedRoute exact path="/benutzerprofil" isAuth={isLoggedIn}
-                                    component={Userprofile} user={user} onCustomerUpdate={this.onCustomerUpdate}
-                                    onCustomerDelete={this.onCustomerDelete}/>
-                    <ProtectedRoute exact path="/abonnements" isAuth={isLoggedIn}
-                                    component={Abonnements} user={user}/>
+                    <ProtectedRoute exact path="/checkout" component={GoodbyePage} showToast/>
+                    <ProtectedRoute exact path="/benutzerprofil" component={Userprofile}
+                                    onCustomerUpdate={this.onCustomerUpdate} onCustomerDelete={this.onCustomerDelete}/>
+                    <ProtectedRoute exact path="/abonnements" component={Abonnements}/>
                     <Route exact path="/anmelden">
                         <Login handleLogIn={this.handleLogIn}/>
                     </Route>
                     <Route exact path="/registrieren">
-                        <Registrieren handleLogIn={this.handleLogIn} user={user}/>
+                        <Registrieren handleLogIn={this.handleLogIn} deliveryAddress={deliveryAddress}/>
                     </Route>
                     <Route exact path="/abmelden">
                         {this.handleLogOut}
                     </Route>
                     <Route exact path="/">
-                        <LandingPage isLoggedIn={isLoggedIn} user={user}/>
+                        <LandingPage/>
                     </Route>
                 </Switch>
             </>

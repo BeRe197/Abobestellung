@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import {withRouter} from 'react-router-dom'
 
 import Container from 'react-bootstrap/Container'
@@ -7,12 +6,12 @@ import Image from 'react-bootstrap/Image'
 import Button from 'react-bootstrap/Button'
 
 import logo from '../assets/images/logo.png'
+import {UserContext} from "../providers/UserProvider";
 
 class LandingPage extends Component {
+    static contextType = UserContext
 
     render() {
-
-        const {isLoggedIn, user} = this.props
 
         return (
             <>
@@ -31,10 +30,10 @@ class LandingPage extends Component {
                 <div className={"landingPageContainer"}>
                     <Container>
                         {
-                            !isLoggedIn ?
+                            !this.context.user ?
                                 <h1>Herzlich Willkommen!</h1>
                                 :
-                                <h1>Herzlich Willkommen zurück {user.firstname + " " + user.lastname}!</h1>
+                                <h1>Herzlich Willkommen zurück {this.context.user.firstname + " " + this.context.user.lastname}!</h1>
                         }
                         <p>
                             Hier bei deiner Zeitung vor Ort!<br/>
@@ -56,7 +55,7 @@ class LandingPage extends Component {
                     </Container>
                 </div>
                 {
-                    isLoggedIn ?
+                    this.context.user ?
                         <div className={"landingPageContainer"}>
                             <Container>
                                 <h1>Was möchten Sie heute tun?</h1>
@@ -113,10 +112,5 @@ class LandingPage extends Component {
             ;
     }
 }
-
-LandingPage.propTypes = {
-    isLoggedIn: PropTypes.bool.isRequired,
-    user: PropTypes.object.isRequired,
-};
 
 export default withRouter(LandingPage);

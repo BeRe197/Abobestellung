@@ -6,23 +6,92 @@ import Form from "react-bootstrap/Form";
 import Toast from "react-bootstrap/Toast";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import {auth} from "../../config/firebase";
 
 class LoginForm extends Component {
+
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.toggleUserMissing = this.toggleUserMissing.bind(this)
+        this.togglePasswordWrong = this.togglePasswordWrong.bind(this)
+
+        this.state = {
+            validated: false,
+            logIn: false,
+            userMissing: false,
+            passwordWrong: false,
+        }
+    }
+
+
+    handleSubmit(event) {
+        const form = event.currentTarget;
+        if (form.checkValidity() === false) {
+            event.stopPropagation()
+        } else {
+            this.setState({
+                logIn: true,
+            })
+
+            auth.signInWithEmailAndPassword(form[0].value, form[1].value)
+                .catch(error => {
+                    console.error("Error signing in with password and email", error)
+                    if (error.code === "auth/wrong-password") {
+                        this.setState({
+                            logIn: false,
+                            passwordWrong: true,
+                            userMissing: false,
+                        })
+                    }
+                    if (error.code === "auth/user-not-found") {
+                        this.setState({
+                            logIn: false,
+                            userMissing: true,
+                            passwordWrong: false,
+                        })
+                    }
+                })
+            let that = this
+            auth.onAuthStateChanged(function (user) {
+                if (user) {
+                    that.setState({
+                        login: false,
+                    })
+                    that.props.handleSuccessfullyLogIn()
+                }
+            })
+        }
+        event.preventDefault()
+
+        this.setState({
+            validated: true,
+        })
+    }
+
+    toggleUserMissing() {
+        this.setState({
+            userMissing: false,
+        })
+    }
+
+    togglePasswordWrong() {
+        this.setState({
+            passwordWrong: false,
+        })
+    }
 
     render() {
 
         const {
             validated,
-            handleSubmit,
             logIn,
             userMissing,
-            passwordWrong,
-            toggleUserMissing,
-            togglePasswordWrong
-        } = this.props
+            passwordWrong
+        } = this.state
 
         return (
-            <Form noValidate validated={validated} onSubmit={handleSubmit}>
+            <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
                 <Form.Group controlId="formBasicEmail">
                     <Form.Control disabled={logIn} required type="email" placeholder="E-Mail-Adresse"/>
                     <Form.Control.Feedback type="invalid">
@@ -37,7 +106,7 @@ class LoginForm extends Component {
                     </Form.Control.Feedback>
                 </Form.Group>
 
-                <Toast className={"toastErrorBorder, loginToast"} show={userMissing} onClose={toggleUserMissing}>
+                <Toast className={"toastErrorBorder, loginToast"} show={userMissing} onClose={this.toggleUserMissing}>
                     <Toast.Header className={"toastError"}>
                         <strong className="mr-auto">Fehler</strong>
                     </Toast.Header>
@@ -45,7 +114,8 @@ class LoginForm extends Component {
                         to="/registrieren">registrieren</Link>?</Toast.Body>
                 </Toast>
 
-                <Toast className={"toastErrorBorder, loginToast"} show={passwordWrong} onClose={togglePasswordWrong}>
+                <Toast className={"toastErrorBorder, loginToast"} show={passwordWrong}
+                       onClose={this.togglePasswordWrong}>
                     <Toast.Header className={"toastError"}>
                         <strong className="mr-auto">Fehler</strong>
                     </Toast.Header>
@@ -76,13 +146,7 @@ class LoginForm extends Component {
 }
 
 LoginForm.propTypes = {
-    validated: PropTypes.bool.isRequired,
-    handleSubmit: PropTypes.func.isRequired,
-    logIn: PropTypes.bool.isRequired,
-    userMissing: PropTypes.bool.isRequired,
-    passwordWrong: PropTypes.bool.isRequired,
-    toggleUserMissing: PropTypes.func.isRequired,
-    togglePasswordWrong: PropTypes.func.isRequired,
+    handleSuccessfullyLogIn: PropTypes.func.isRequired,
 };
 
 export default LoginForm;

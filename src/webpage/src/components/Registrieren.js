@@ -6,9 +6,9 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Col from 'react-bootstrap/Col'
 
-import {saveCustomer} from "../api/Api"
 import Toast from "react-bootstrap/Toast";
 import Spinner from "react-bootstrap/Spinner";
+import {auth, generateUserDocument} from "../config/firebase";
 
 class Registrieren extends Component {
 
@@ -32,55 +32,61 @@ class Registrieren extends Component {
         }))
     }
 
-    handleSubmit(event) {
+    async handleSubmit(event) {
+        event.preventDefault()
+        this.setState({
+            validated: true,
+        })
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
             event.stopPropagation()
         } else {
             console.log("Erstelle Kunde")
-            let newCustomer = {
-                id: 0,
-                titleAddress: form[1].value,
-                firstname: form[2].value,
-                lastname: form[3].value,
-                companyname: form[0].value,
-                email: form[8].checked ? form[13].value : form[9].value,
-                password: form[8].checked ? form[15].value : form[11].value,
-                phone: form[8].checked ? form[14].value : form[10].value,
-                deliveryAddress: {
-                    city: form[5].value,
-                    plz: form[6].value,
-                    street: form[4].value,
-                    state: form[7].value,
-                },
-                billingAddress: {
-                    city: form[8].checked ? form[10].value : form[5].value,
-                    plz: form[8].checked ? form[11].value : form[6].value,
-                    street: form[8].checked ? form[9].value : form[4].value,
-                    state: form[8].checked ? form[12].value : form[7].value,
-                },
+            let email = form[8].checked ? form[13].value : form[9].value;
+            let password = form[8].checked ? form[15].value : form[11].value
+            let titleAddress = form[1].value
+            let firstname = form[2].value
+            let lastname = form[3].value
+            let companyname = form[0].value
+            let phone = form[8].checked ? form[14].value : form[10].value
+            let deliveryAddress = {
+                city: form[5].value,
+                plz: form[6].value,
+                street: form[4].value,
+                state: form[7].value,
+            }
+            let billingAddress = {
+                city: form[8].checked ? form[10].value : form[5].value,
+                plz: form[8].checked ? form[11].value : form[6].value,
+                street: form[8].checked ? form[9].value : form[4].value,
+                state: form[8].checked ? form[12].value : form[7].value,
             }
 
-            saveCustomer(newCustomer).then((erg) => {
-                console.log("Kunde erstellt")
-                if (erg.success[0]) {
-                    this.setState({
-                        signIn: false,
-                    })
-                    this.props.handleLogIn(newCustomer)
-                } else {
+            try {
+                const {user} = await auth.createUserWithEmailAndPassword(email, password);
+                await generateUserDocument(user, {
+                    titleAddress,
+                    firstname,
+                    lastname,
+                    companyname,
+                    phone,
+                    billingAddress,
+                    deliveryAddress
+                });
+                this.setState({
+                    signIn: false,
+                })
+                this.props.handleLogIn()
+            } catch (error) {
+                console.error("Error Signing up with email and password", error)
+                if (error.code === "auth/email-already-in-use") {
                     this.setState({
                         duplicateEmailAddress: true,
                         signIn: false,
                     })
                 }
-            })
+            }
         }
-        event.preventDefault()
-
-        this.setState({
-            validated: true,
-        })
     }
 
     toggleDuplicateEmailAddress() {
@@ -92,7 +98,7 @@ class Registrieren extends Component {
     render() {
 
         const {differentBillingAddress, validated, signIn, duplicateEmailAddress} = this.state
-        const {user} = this.props
+        const {deliveryAddress} = this.props
 
         return (
             <div className={"registrieren"}>
@@ -132,7 +138,8 @@ class Registrieren extends Component {
                     }
 
                     <Form.Group controlId="formGridAddress1">
-                        <Form.Control disabled={signIn} required defaultValue={user.deliveryAddress.street}
+                        <Form.Control disabled={signIn} required
+                                      defaultValue={deliveryAddress ? deliveryAddress.street : ""}
                                       placeholder="Straße"/>
                         <Form.Control.Feedback type="invalid">
                             Bitte geben Sie Ihre Straße ein.
@@ -142,24 +149,26 @@ class Registrieren extends Component {
                     <Form.Row>
                         <Form.Group as={Col} controlId="formGridCity1">
                             <Form.Control disabled={signIn} required name="city"
-                                          defaultValue={user.deliveryAddress.city} placeholder="Stadt"/>
+                                          defaultValue={deliveryAddress ? deliveryAddress.city : ""}
+                                          placeholder="Stadt"/>
                             <Form.Control.Feedback type="invalid">
                                 Bitte geben Sie Ihre Stadt ein.
                             </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridZip1">
-                            <Form.Control disabled={signIn} required defaultValue={user.deliveryAddress.plz}
-                                          type="number" name="zip" placeholder="PLZ"/>
+                            <Form.Control disabled={signIn} required
+                                          defaultValue={deliveryAddress ? deliveryAddress.plz : ""}
+                                          type="number" name="zip" placeholder="PLZ" minLength={5}/>
                             <Form.Control.Feedback type="invalid">
-                                Bitte geben Sie Ihre Postleitzahl ein.
+                                Bitte geben Sie eine valide Postleitzahl ein.
                             </Form.Control.Feedback>
                         </Form.Group>
                     </Form.Row>
 
                     <Form.Group controlId="formGridState1">
                         <Form.Control disabled={signIn} required name="state" as="select"
-                                      defaultValue={user.deliveryAddress.state !== "" ? user.deliveryAddress.state : "Deutschland"}>
+                                      defaultValue={deliveryAddress ? deliveryAddress.state : "Deutschland"}>
                             <option>Deutschland</option>
                             <option>Österreich</option>
                             <option>Schweiz</option>
@@ -194,9 +203,9 @@ class Registrieren extends Component {
 
                                     <Form.Group as={Col} controlId="formGridZip2">
                                         <Form.Control disabled={signIn} required type="number" name="zip"
-                                                      placeholder="PLZ"/>
+                                                      placeholder="PLZ" minLength={5}/>
                                         <Form.Control.Feedback type="invalid">
-                                            Bitte geben Sie Ihre Postleitzahl ein.
+                                            Bitte geben Sie eine valide Postleitzahl ein.
                                         </Form.Control.Feedback>
                                     </Form.Group>
                                 </Form.Row>
@@ -232,10 +241,14 @@ class Registrieren extends Component {
                     </Form.Group>
 
                     <Form.Group controlId="formBasicPassword">
-                        <Form.Control disabled={signIn} required type="password" placeholder="Passwort"/>
+                        <Form.Control disabled={signIn} aria-describedby="passwordHelpBlock" required type="password"
+                                      placeholder="Passwort" minLength={6}/>
                         <Form.Control.Feedback type="invalid">
                             Bitte geben Sie Ihr Passwort ein.
                         </Form.Control.Feedback>
+                        <Form.Text id="passwordHelpBlock" muted>
+                            Ihr Passwort muss mindestens 6 Zeichen haben.
+                        </Form.Text>
                     </Form.Group>
 
                     <Toast className={"toastErrorBorder"} show={duplicateEmailAddress}
@@ -275,7 +288,7 @@ class Registrieren extends Component {
 
 Registrieren.propTypes = {
     handleLogIn: PropTypes.func.isRequired,
-    user: PropTypes.object,
+    deliveryAddress: PropTypes.object,
 }
 
 export default Registrieren;

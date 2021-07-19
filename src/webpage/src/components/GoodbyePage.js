@@ -9,8 +9,10 @@ import Toast from "react-bootstrap/Toast"
 
 import logo from '../assets/images/logo.png'
 import {ImCheckmark} from "react-icons/all";
+import {UserContext} from "../providers/UserProvider";
 
 class GoodbyePage extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props);
@@ -37,7 +39,6 @@ class GoodbyePage extends Component {
 
     render() {
 
-        const {user} = this.props
         const {show} = this.state
 
         return (
@@ -56,7 +57,8 @@ class GoodbyePage extends Component {
                 </div>
                 <div className={"landingPageContainer"}>
                     <Container style={{textAlign: "center"}}>
-                        <h1>Vielen Dank {user.titleAddress + " " + user.firstname + " " + user.lastname}!</h1>
+                        <h1>Vielen
+                            Dank {this.context.user.titleAddress + " " + this.context.user.firstname + " " + this.context.user.lastname}!</h1>
                         <p>
                             Sie haben Ihr Abonnement erfolgreich abgeschlossen. Herzlichen Dank an Ihrem Vertrauen.
                         </p>
@@ -92,7 +94,8 @@ class GoodbyePage extends Component {
                         </p>
                     </Container>
                 </div>
-                <Toast className="p-3 toastSuccess" onClose={this.handleClose} position={"bottom-center"} bg="success" show={show} delay={3000} autohide>
+                <Toast className="p-3 toastSuccess" onClose={this.handleClose} position={"bottom-center"} bg="success"
+                       show={show} delay={3000} autohide>
                     <Toast.Header closeButton={false}>
                         <ImCheckmark style={{marginRight: "0.4rem"}}/>
                         <strong className="me-auto">Erfolgreich</strong>
@@ -106,7 +109,6 @@ class GoodbyePage extends Component {
 }
 
 GoodbyePage.propTypes = {
-    user: PropTypes.object.isRequired,
     showToast: PropTypes.bool,
 };
 

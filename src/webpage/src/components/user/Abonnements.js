@@ -1,14 +1,15 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 
 import Container from "react-bootstrap/Container";
-import {readAllAbosForCustomer} from "../../api/Api";
 import {Row} from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
 import Abonnement from "../fragment/Abonnement";
+import {UserContext} from "../../providers/UserProvider";
+import {getAllAbosForUserDocument} from "../../config/firebase";
 
 class Abonnements extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props);
@@ -20,13 +21,17 @@ class Abonnements extends Component {
     }
 
     componentDidMount() {
-        readAllAbosForCustomer(this.props.user.id).then((erg) => {
-            console.log("Abos geladen")
-            this.setState({
-                isLoading: false,
-                abos: erg.allAbos,
+        getAllAbosForUserDocument(this.context.user.uid)
+            .then((abos) => {
+                console.log("Abos geladen")
+                this.setState({
+                    isLoading: false,
+                    abos: abos,
+                })
             })
-        })
+            .catch((error) => {
+                console.error("Error while trying to get the Abos for user " + this.context.user.uid + " Error: ", error)
+            })
     }
 
     render() {
@@ -46,7 +51,7 @@ class Abonnements extends Component {
                         </Container>
                         :
                         abos.map((abo, index) => (
-                            <div key={abo.id} className={"landingPageContainer"}>
+                            <div key={abo.aboId} className={"landingPageContainer"}>
                                 <Container>
                                     <h2>Abonnement {index + 1}</h2>
                                     <br/>
@@ -60,11 +65,5 @@ class Abonnements extends Component {
     }
 
 }
-
-Abonnements.propTypes = {
-    user: PropTypes.object.isRequired,
-}
-
-;
 
 export default Abonnements;

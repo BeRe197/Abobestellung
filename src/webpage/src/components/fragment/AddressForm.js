@@ -5,8 +5,10 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Col from "react-bootstrap/Col";
+import {UserContext} from "../../providers/UserProvider";
 
 class AddressForm extends Component {
+    static contextType = UserContext
 
     render() {
 
@@ -14,14 +16,13 @@ class AddressForm extends Component {
             validated,
             handleSubmit,
             update,
-            user,
             addressType,
         } = this.props
 
         return (
             <Form noValidate validated={validated} onSubmit={handleSubmit}>
                 <Form.Group controlId="formGridAddress2">
-                    <Form.Control required disabled={update} defaultValue={user[addressType].street}
+                    <Form.Control required disabled={update} defaultValue={this.context.user[addressType].street}
                                   placeholder="Straße"/>
                     <Form.Control.Feedback type="invalid">
                         Bitte geben Sie Ihre Straße ein.
@@ -30,7 +31,7 @@ class AddressForm extends Component {
 
                 <Form.Row>
                     <Form.Group as={Col} controlId="formGridCity2">
-                        <Form.Control required disabled={update} defaultValue={user[addressType].city}
+                        <Form.Control required disabled={update} defaultValue={this.context.user[addressType].city}
                                       name="city"
                                       placeholder="Stadt"/>
                         <Form.Control.Feedback type="invalid">
@@ -40,7 +41,7 @@ class AddressForm extends Component {
 
                     <Form.Group as={Col} controlId="formGridZip2">
                         <Form.Control required type="number" disabled={update}
-                                      defaultValue={user[addressType].plz} name="zip"
+                                      defaultValue={this.context.user[addressType].plz} name="zip"
                                       placeholder="PLZ"/>
                         <Form.Control.Feedback type="invalid">
                             Bitte geben Sie Ihre Postleitzahl ein.
@@ -50,7 +51,7 @@ class AddressForm extends Component {
 
                 <Form.Group controlId="formGridState2">
                     <Form.Control required name="state" disabled={update} as="select"
-                                  defaultValue={user[addressType].state}>
+                                  defaultValue={this.context.user[addressType].state}>
                         <option>Deutschland</option>
                         <option>Österreich</option>
                         <option>Schweiz</option>
@@ -81,7 +82,6 @@ AddressForm.propTypes = {
     validated: PropTypes.bool.isRequired,
     handleSubmit: PropTypes.func.isRequired,
     update: PropTypes.bool.isRequired,
-    user: PropTypes.object.isRequired,
     addressType: PropTypes.string.isRequired,
 };
 

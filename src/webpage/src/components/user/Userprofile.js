@@ -11,8 +11,10 @@ import Modal from "react-bootstrap/Modal";
 import AddressForm from "../fragment/AddressForm";
 import UserForm from "../fragment/UserForm";
 import Spinner from "react-bootstrap/Spinner";
+import {UserContext} from "../../providers/UserProvider";
 
 class Userprofile extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props);
@@ -38,7 +40,7 @@ class Userprofile extends Component {
         }
     }
 
-    handleUserUpdate(event, type) {
+    async handleUserUpdate(event, type) {
         event.preventDefault()
         const form = event.currentTarget
         if (form.checkValidity() === false) {
@@ -54,29 +56,19 @@ class Userprofile extends Component {
                     this.setState({
                         updateDelAddress: true,
                     })
-                    let newUser = this.props.user
+                    let newUser = this.context.user
                     newUser.deliveryAddress.street = form[0].value
                     newUser.deliveryAddress.city = form[1].value
                     newUser.deliveryAddress.plz = form[2].value
                     newUser.deliveryAddress.state = form[3].value
 
-                    this.props.onCustomerUpdate(newUser)
-                        .then((response) => {
-                            console.log("User updated " + Object.values(response))
-                            this.setState({
-                                showModalDelAddress: false,
-                                updateDelAddress: false,
-                                validatedDelAddress: false,
-                            })
-                        })
-                        .catch((err) => {
-                            console.log('There was an error:' + err)
-                            this.setState({
-                                showModalDelAddress: false,
-                                updateDelAddress: false,
-                                validatedDelAddress: false,
-                            })
-                        })
+                    await this.props.onCustomerUpdate(newUser)
+                    console.info("User updated")
+                    this.setState({
+                        showModalDelAddress: false,
+                        updateDelAddress: false,
+                        validatedDelAddress: false,
+                    })
                 }
                 break;
             case "bil":
@@ -87,29 +79,19 @@ class Userprofile extends Component {
                     this.setState({
                         updateBilAddress: true,
                     })
-                    let newUser = this.props.user
+                    let newUser = this.context.user
                     newUser.billingAddress.street = form[0].value
                     newUser.billingAddress.city = form[1].value
                     newUser.billingAddress.plz = form[2].value
                     newUser.billingAddress.state = form[3].value
 
-                    this.props.onCustomerUpdate(newUser)
-                        .then((response) => {
-                            console.log("User updated " + Object.values(response))
-                            this.setState({
-                                showModalBilAddress: false,
-                                updateBilAddress: false,
-                                validatedBilAddress: false,
-                            })
-                        })
-                        .catch((err) => {
-                            console.log('There was an error:' + err)
-                            this.setState({
-                                showModalBilAddress: false,
-                                updateBilAddress: false,
-                                validatedBilAddress: false,
-                            })
-                        })
+                    await this.props.onCustomerUpdate(newUser)
+                    console.info("User updated")
+                    this.setState({
+                        showModalBilAddress: false,
+                        updateBilAddress: false,
+                        validatedBilAddress: false,
+                    })
                 }
                 break;
             case "user":
@@ -120,7 +102,7 @@ class Userprofile extends Component {
                     this.setState({
                         updateUser: true,
                     })
-                    let newUser = this.props.user
+                    let newUser = this.context.user
                     newUser.companyname = form[0].value
                     newUser.titleAddress = form[1].value
                     newUser.firstname = form[2].value
@@ -128,23 +110,13 @@ class Userprofile extends Component {
                     newUser.email = form[4].value
                     newUser.phone = form[5].value
 
-                    this.props.onCustomerUpdate(newUser)
-                        .then((response) => {
-                            console.log("User updated " + Object.values(response))
-                            this.setState({
-                                showModalUser: false,
-                                updateUser: false,
-                                validatedUser: false,
-                            })
-                        })
-                        .catch((err) => {
-                            console.log('There was an error:' + err)
-                            this.setState({
-                                showModalUser: false,
-                                updateUser: false,
-                                validatedUser: false,
-                            })
-                        })
+                    await this.props.onCustomerUpdate(newUser)
+                    console.info("User updated")
+                    this.setState({
+                        showModalUser: false,
+                        updateUser: false,
+                        validatedUser: false,
+                    })
                 }
                 break;
         }
@@ -186,9 +158,10 @@ class Userprofile extends Component {
         this.setState({
             deleteUser: true,
         })
+
         this.props.onCustomerDelete()
-            .then((response) => {
-                console.log("User deleted " + Object.values(response))
+            .then(() => {
+                console.log("User deleted")
                 this.setState({
                     showModalDeleteUser: false,
                     deleteUser: false,
@@ -205,7 +178,6 @@ class Userprofile extends Component {
 
     render() {
 
-        const {user} = this.props
         const {
             showModalBilAddress,
             validatedBilAddress,
@@ -234,12 +206,12 @@ class Userprofile extends Component {
                                 style={{color: "white", fontSize: "1.5rem"}}/></Button>{' '}
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <p><b>Anrede:</b> {user.titleAddress}</p>
-                            <p><b>Vorname:</b> {user.firstname}</p>
-                            <p><b>Nachname:</b> {user.lastname}</p>
-                            <p><b>Firmenname:</b> {user.companyname}</p>
-                            <p><b>E-Mail:</b> {user.email}</p>
-                            <p><b>Phone:</b> {user.phone}</p>
+                            <p><b>Anrede:</b> {this.context.user.titleAddress}</p>
+                            <p><b>Vorname:</b> {this.context.user.firstname}</p>
+                            <p><b>Nachname:</b> {this.context.user.lastname}</p>
+                            <p><b>Firmenname:</b> {this.context.user.companyname}</p>
+                            <p><b>E-Mail:</b> {this.context.user.email}</p>
+                            <p><b>Phone:</b> {this.context.user.phone}</p>
                         </ListGroup.Item>
                     </Col>
                 </Row>
@@ -256,9 +228,9 @@ class Userprofile extends Component {
                                 style={{color: "white", fontSize: "1.5rem"}}/></Button>{' '}
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <p>{user.deliveryAddress.street}</p>
-                            <p>{user.deliveryAddress.city + " " + user.deliveryAddress.plz}</p>
-                            <p>{user.deliveryAddress.state}</p>
+                            <p>{this.context.user.deliveryAddress.street}</p>
+                            <p>{this.context.user.deliveryAddress.city + " " + this.context.user.deliveryAddress.plz}</p>
+                            <p>{this.context.user.deliveryAddress.state}</p>
                         </ListGroup.Item>
                     </Col>
                     <Col>
@@ -272,9 +244,9 @@ class Userprofile extends Component {
                                 style={{color: "white", fontSize: "1.5rem"}}/></Button>{' '}
                         </ListGroup.Item>
                         <ListGroup.Item>
-                            <p>{user.billingAddress.street}</p>
-                            <p>{user.billingAddress.city + " " + user.billingAddress.plz}</p>
-                            <p>{user.billingAddress.state}</p>
+                            <p>{this.context.user.billingAddress.street}</p>
+                            <p>{this.context.user.billingAddress.city + " " + this.context.user.billingAddress.plz}</p>
+                            <p>{this.context.user.billingAddress.state}</p>
                         </ListGroup.Item>
                     </Col>
                 </Row>
@@ -302,7 +274,7 @@ class Userprofile extends Component {
                     <Modal.Body style={{textAlign: "center"}}>
                         <AddressForm validated={validatedBilAddress}
                                      handleSubmit={(event) => this.handleUserUpdate(event, "bil")}
-                                     update={updateBilAddress} user={user} addressType={"billingAddress"}/>
+                                     update={updateBilAddress} addressType={"billingAddress"}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" disabled={updateBilAddress} onClick={this.handleCloseBilAddress}>
@@ -318,7 +290,7 @@ class Userprofile extends Component {
                     <Modal.Body style={{textAlign: "center"}}>
                         <AddressForm validated={validatedDelAddress}
                                      handleSubmit={(event) => this.handleUserUpdate(event, "del")}
-                                     update={updateDelAddress} user={user} addressType={"deliveryAddress"}/>
+                                     update={updateDelAddress} addressType={"deliveryAddress"}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" disabled={updateDelAddress} onClick={this.handleCloseDelAddress}>
@@ -333,8 +305,7 @@ class Userprofile extends Component {
                     </Modal.Header>
                     <Modal.Body style={{textAlign: "center"}}>
                         <UserForm validated={validateUser}
-                                  handleSubmit={(event) => this.handleUserUpdate(event, "user")} update={updateUser}
-                                  user={user}/>
+                                  handleSubmit={(event) => this.handleUserUpdate(event, "user")} update={updateUser}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" disabled={updateUser} onClick={this.handleCloseUser}>
@@ -348,7 +319,9 @@ class Userprofile extends Component {
                         <Modal.Title>Benutzer löschen</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{textAlign: "left"}}>
-                        <p>Sind Sie sich sicher? Diese Option lässt sich nicht rückgängig machen!</p>
+                        <span>Sind Sie sich sicher? Diese Option lässt sich nicht rückgängig machen!</span>
+                        <p style={{fontSize: "12px"}} className="text-muted">Beachte, dass dies nur Ihre Benutzerdaten löscht. Ihre abgeschlossenen Abos
+                            bleiben aus steuerlichen Gründen bestehen!</p>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" disabled={deleteUser} onClick={this.handleCloseDeleteUser}>
@@ -376,7 +349,6 @@ class Userprofile extends Component {
 }
 
 Userprofile.propTypes = {
-    user: PropTypes.object.isRequired,
     onCustomerUpdate: PropTypes.func.isRequired,
     onCustomerDelete: PropTypes.func.isRequired,
 };

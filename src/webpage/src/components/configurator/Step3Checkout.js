@@ -10,14 +10,16 @@ import Col from "react-bootstrap/Col";
 import {Grid, Switch, Typography} from "@material-ui/core";
 import ListGroup from "react-bootstrap/ListGroup";
 import Modal from "react-bootstrap/Modal";
-import {saveAboForCustomer} from "../../api/Api";
 import Spinner from "react-bootstrap/Spinner";
 import AddressForm from "../fragment/AddressForm";
 import Toast from "react-bootstrap/Toast";
 import {ImCheckmark} from "react-icons/all";
 import Abonnement from "../fragment/Abonnement";
+import {UserContext} from "../../providers/UserProvider";
+import {generateAboDocument} from "../../config/firebase";
 
 class Step3Checkout extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props);
@@ -43,7 +45,7 @@ class Step3Checkout extends Component {
             lastschrift: false,
             IBAN: "",
             BIC: "",
-            AccountHolder: this.props.user.firstname + " " + this.props.user.lastname,
+            AccountHolder: "",
             showModal: false,
             validatedDataSecurity: false,
             validatedIBAN: false,
@@ -54,6 +56,12 @@ class Step3Checkout extends Component {
             showDelAddressToastSuccess: false,
             showDelAddressToastError: false,
         }
+    }
+
+    componentDidMount() {
+        this.setState({
+            AccountHolder: this.context.user.firstname + " " + this.context.user.lastname,
+        })
     }
 
     handleTabChange(key) {
@@ -121,7 +129,7 @@ class Step3Checkout extends Component {
     }
 
     handleCloseDelAddress() {
-        if (!this.state.saving) { //TODO:
+        if (!this.state.saving) {
             this.setState({
                 showModalDelAddress: false,
             })
@@ -140,7 +148,7 @@ class Step3Checkout extends Component {
         })
     }
 
-    handleCheckoutAbo() {
+    async handleCheckoutAbo() {
         this.setState({
             validatedDataSecurity: true,
         })
@@ -151,24 +159,23 @@ class Step3Checkout extends Component {
             let newAbo = this.props.abo
             newAbo.dataprivacyaccepted = true
             newAbo.paymenttype = this.state.lastschrift ? "Direct Debit" : "Invoice"
-            newAbo.cid = this.props.user.id
+            newAbo.userId = this.context.user.uid
             if (this.state.lastschrift) {
                 newAbo.iban = this.state.IBAN
                 newAbo.bic = this.state.BIC
                 newAbo.AccountHolder = this.state.AccountHolder
             }
-            saveAboForCustomer(newAbo).then((erg) => {
-                console.log("Save:" + Object.values(erg))
-                this.setState({
-                    saving: false,
-                })
-                this.props.clearAbo()
-                this.props.history.push(`/checkout`)
+            await generateAboDocument(newAbo)
+            this.setState({
+                saving: false,
             })
+            this.props.clearAbo()
+            this.props.history.push(`/checkout`)
         }
     }
 
-    handleUserUpdate(event) {
+    async handleUserUpdate(event) {
+        event.preventDefault()
         this.setState({
             validatedDelAddress: true,
         })
@@ -179,33 +186,21 @@ class Step3Checkout extends Component {
             this.setState({
                 updateDelAddress: true,
             })
-            let newUser = this.props.user
-            newUser.billingAddress.street = form[0].value
-            newUser.billingAddress.city = form[1].value
-            newUser.billingAddress.plz = form[2].value
-            newUser.billingAddress.state = form[3].value
+            let billingAddress = {}
+            billingAddress.street = form[0].value
+            billingAddress.city = form[1].value
+            billingAddress.plz = form[2].value
+            billingAddress.state = form[3].value
 
-            this.props.onCustomerUpdate(newUser)
-                .then((response) => {
-                    console.log("User updated " + Object.values(response))
-                    this.setState({
-                        showModalDelAddress: false,
-                        updateDelAddress: false,
-                        showDelAddressToastSuccess: true,
-                        validatedDelAddress: false,
-                    })
-                })
-                .catch((err) => {
-                    console.log('There was an error:' + err)
-                    this.setState({
-                        showModalDelAddress: false,
-                        updateDelAddress: false,
-                        showDelAddressToastError: true,
-                        validatedDelAddress: false,
-                    })
-                })
+            await this.props.onCustomerUpdate({billingAddress: billingAddress})
+
+            this.setState({
+                showModalDelAddress: false,
+                updateDelAddress: false,
+                showDelAddressToastSuccess: true,
+                validatedDelAddress: false,
+            })
         }
-        event.preventDefault()
     }
 
     openChangeDelAddress() {
@@ -244,7 +239,6 @@ class Step3Checkout extends Component {
             showDelAddressToastSuccess,
             showDelAddressToastError,
         } = this.state
-        const {user} = this.props
 
         return (
             <div className="landingPageContainer">
@@ -256,8 +250,8 @@ class Step3Checkout extends Component {
                                 bearbeiten</Button>
                             <Form>
                                 <Form.Group controlId="formGridAddress2">
-                                    <Form.Control required disabled defaultValue={user.billingAddress.street}
-                                                  placeholder="Straße"/>
+                                    <Form.Control required disabled value={this.context.user.billingAddress.street}
+                                                  onChange={() => {}} placeholder="Straße"/>
                                     <Form.Control.Feedback type="invalid">
                                         Bitte geben Sie Ihre Straße ein.
                                     </Form.Control.Feedback>
@@ -265,8 +259,8 @@ class Step3Checkout extends Component {
 
                                 <Form.Row>
                                     <Form.Group as={Col} controlId="formGridCity2">
-                                        <Form.Control required disabled defaultValue={user.billingAddress.city}
-                                                      name="city"
+                                        <Form.Control required disabled value={this.context.user.billingAddress.city}
+                                                      name="city" onChange={() => {}}
                                                       placeholder="Stadt"/>
                                         <Form.Control.Feedback type="invalid">
                                             Bitte geben Sie Ihre Stadt ein.
@@ -274,8 +268,8 @@ class Step3Checkout extends Component {
                                     </Form.Group>
 
                                     <Form.Group as={Col} controlId="formGridZip2">
-                                        <Form.Control required type="number" disabled
-                                                      defaultValue={user.billingAddress.plz} name="zip"
+                                        <Form.Control required type="number" disabled onChange={() => {}}
+                                                      value={this.context.user.billingAddress.plz} name="zip"
                                                       placeholder="PLZ"/>
                                         <Form.Control.Feedback type="invalid">
                                             Bitte geben Sie Ihre Postleitzahl ein.
@@ -284,8 +278,8 @@ class Step3Checkout extends Component {
                                 </Form.Row>
 
                                 <Form.Group controlId="formGridState2">
-                                    <Form.Control required name="state" disabled as="select"
-                                                  defaultValue={user.billingAddress.state}>
+                                    <Form.Control required name="state" disabled as="select" onChange={() => {}}
+                                                  value={this.context.user.billingAddress.state}>
                                         <option>Deutschland</option>
                                         <option>Österreich</option>
                                         <option>Schweiz</option>
@@ -350,12 +344,12 @@ class Step3Checkout extends Component {
                                         <h3>Kundeninformationen</h3>
                                     </ListGroup.Item>
                                     <ListGroup.Item>
-                                        <p><b>Anrede:</b> {user.titleAddress}</p>
-                                        <p><b>Vorname:</b> {user.firstname}</p>
-                                        <p><b>Nachname:</b> {user.lastname}</p>
-                                        <p><b>Firmenname:</b> {user.companyname}</p>
-                                        <p><b>E-Mail:</b> {user.email}</p>
-                                        <p><b>Phone:</b> {user.phone}</p>
+                                        <p><b>Anrede:</b> {this.context.user.titleAddress}</p>
+                                        <p><b>Vorname:</b> {this.context.user.firstname}</p>
+                                        <p><b>Nachname:</b> {this.context.user.lastname}</p>
+                                        <p><b>Firmenname:</b> {this.context.user.companyname}</p>
+                                        <p><b>E-Mail:</b> {this.context.user.email}</p>
+                                        <p><b>Phone:</b> {this.context.user.phone}</p>
                                     </ListGroup.Item>
                                 </Col>
                                 <Col>
@@ -364,15 +358,15 @@ class Step3Checkout extends Component {
                                     </ListGroup.Item>
                                     <ListGroup.Item>
                                         <p><b>Lieferadresse:</b></p>
-                                        <p>{user.deliveryAddress.street}</p>
-                                        <p>{user.deliveryAddress.city + " " + user.deliveryAddress.plz}</p>
-                                        <p>{user.deliveryAddress.state}</p>
+                                        <p>{this.context.user.deliveryAddress.street}</p>
+                                        <p>{this.context.user.deliveryAddress.city + " " + this.context.user.deliveryAddress.plz}</p>
+                                        <p>{this.context.user.deliveryAddress.state}</p>
                                     </ListGroup.Item>
                                     <ListGroup.Item>
                                         <p><b>Rechnungsadresse:</b></p>
-                                        <p>{user.billingAddress.street}</p>
-                                        <p>{user.billingAddress.city + " " + user.billingAddress.plz}</p>
-                                        <p>{user.billingAddress.state}</p>
+                                        <p>{this.context.user.billingAddress.street}</p>
+                                        <p>{this.context.user.billingAddress.city + " " + this.context.user.billingAddress.plz}</p>
+                                        <p>{this.context.user.billingAddress.state}</p>
                                     </ListGroup.Item>
                                 </Col>
                             </Row>
@@ -430,7 +424,7 @@ class Step3Checkout extends Component {
                     </Modal.Header>
                     <Modal.Body style={{textAlign: "center"}}>
                         <AddressForm validated={validatedDelAddress} handleSubmit={this.handleUserUpdate}
-                                     update={updateDelAddress} user={user} addressType={"billingAddress"}/>
+                                     update={updateDelAddress} addressType={"billingAddress"}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" disabled={saving} onClick={this.handleCloseDelAddress}>
@@ -461,7 +455,6 @@ class Step3Checkout extends Component {
 }
 
 Step3Checkout.propTypes = {
-    user: PropTypes.object.isRequired,
     abo: PropTypes.object.isRequired,
     onCustomerUpdate: PropTypes.func.isRequired,
     clearAbo: PropTypes.func.isRequired,

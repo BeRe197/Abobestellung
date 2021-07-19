@@ -14,17 +14,16 @@ import Modal from "react-bootstrap/Modal";
 import newspaper from "../../assets/images/newspaper.jpg"
 import avatar from "../../assets/images/avatar.jpg";
 import LoginForm from "../fragment/LoginForm";
-import {readCustomer} from "../../api/Api";
+import {UserContext} from "../../providers/UserProvider";
 
 class Step1Delivery extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props);
         this.handleLogIn = this.handleLogIn.bind(this)
         this.handleClose = this.handleClose.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.toggleUserMissing = this.toggleUserMissing.bind(this)
-        this.togglePasswordWrong = this.togglePasswordWrong.bind(this)
+        this.handleSuccessfullyLogIn = this.handleSuccessfullyLogIn.bind(this)
         this.onChangeAddress = this.onChangeAddress.bind(this)
         this.startConfig = this.startConfig.bind(this)
 
@@ -32,11 +31,8 @@ class Step1Delivery extends Component {
 
         this.state = {
             showModal: false,
-            validated: false,
-            logIn: false,
-            userMissing: false,
-            passwordWrong: false,
             validatedAddress: false,
+            deliveryAddress: {},
         }
     }
 
@@ -52,59 +48,21 @@ class Step1Delivery extends Component {
         })
     }
 
-    handleSubmit(event) {
-        const form = event.currentTarget;
-        event.preventDefault()
-        if (form.checkValidity() === false) {
-            event.stopPropagation()
-        } else {
-            this.setState({
-                logIn: true,
-            })
-
-            readCustomer(form[0].value).then((erg) => {
-                if (erg.customer[0] === undefined) {
-                    this.setState({
-                        logIn: false,
-                        userMissing: true,
-                    })
-                } else if (erg.customer[0].password !== form[1].value) {
-                    this.setState({
-                        logIn: false,
-                        passwordWrong: true,
-                    })
-                } else {
-                    this.props.loginUser(erg.customer[0])
-                    this.setState({
-                        login: false,
-                        showModal: false,
-                    })
-                }
-            })
-        }
-
+    handleSuccessfullyLogIn() {
         this.setState({
-            validated: true,
-        })
-    }
-
-    toggleUserMissing() {
-        this.setState({
-            userMissing: false,
-        })
-    }
-
-    togglePasswordWrong() {
-        this.setState({
-            passwordWrong: false,
+            showModal: false,
         })
     }
 
     onChangeAddress(event) {
         let fieldName = event.target.name;
         let fieldVal = event.target.value;
+        let newDeliveryAddress = this.state.deliveryAddress
+        newDeliveryAddress[fieldName] = fieldVal
 
-        this.props.changeDeliveryAddress(fieldName, fieldVal)
+        this.setState({
+            deliveryAddress: newDeliveryAddress,
+        })
     }
 
     startConfig(event) {
@@ -113,6 +71,7 @@ class Step1Delivery extends Component {
         if (form.checkValidity() === false) {
             event.stopPropagation()
         } else {
+            this.props.changeDeliveryAddress(this.state.deliveryAddress)
             this.props.history.push(`/konfigurator/detail`)
         }
         this.setState({
@@ -122,8 +81,7 @@ class Step1Delivery extends Component {
 
     render() {
 
-        const {showModal, validated, logIn, userMissing, passwordWrong, validatedAddress} = this.state
-        const {user, isLoggedIn} = this.props
+        const {showModal, validatedAddress} = this.state
 
         return (
             <Container style={{paddingTop: "1.5rem"}}>
@@ -132,7 +90,8 @@ class Step1Delivery extends Component {
                     <Card.Body>
                         <Card.Title style={{fontSize: "2rem"}}>Die Zeitung - Gedruckt</Card.Title>
                         <Card.Text>
-                            Wer sich intelligent informieren möchte, liest <em>die Zeitung</em>: gründlich recherchierte Fakten,
+                            Wer sich intelligent informieren möchte, liest <em>die Zeitung</em>: gründlich recherchierte
+                            Fakten,
                             präzise Analysen, klug geschriebene Kommentare. Eine Zeitung, gemacht von erstklassigen
                             Journalisten für Leser mit höchsten Ansprüchen.
                         </Card.Text>
@@ -152,14 +111,14 @@ class Step1Delivery extends Component {
                             <Form noValidate validated={validatedAddress} ref={this.formAddress}>
                                 <h4 className="deliveryAddress">Lieferadresse</h4>
                                 {
-                                    isLoggedIn ?
+                                    this.context.user ?
                                         <Button className="headerProfileBtn deliveryLoginBtn">
                                             <img
                                                 alt="Avatar"
                                                 src={avatar}
                                                 className="d-inline-block align-top avatar deliveryAvatar"
                                             />{' '}
-                                            <div className="headerName">{user.email}</div>
+                                            <div className="headerName">{this.context.user.email}</div>
                                         </Button>
                                         :
                                         <Button className="headerProfileBtn deliveryLoginBtn"
@@ -174,7 +133,8 @@ class Step1Delivery extends Component {
                                 }
                                 <Form.Group controlId="formGridAddress">
                                     <Form.Control name="street" required placeholder="Straße"
-                                                  value={user.deliveryAddress.street} onChange={this.onChangeAddress}/>
+                                                  defaultValue={this.context.user ? this.context.user.deliveryAddress.street : ""}
+                                                  onChange={this.onChangeAddress}/>
                                     <Form.Control.Feedback type="invalid">
                                         Bitte geben Sie Ihre Straße ein.
                                     </Form.Control.Feedback>
@@ -183,7 +143,7 @@ class Step1Delivery extends Component {
                                 <Form.Row>
                                     <Form.Group as={Col} controlId="formGridCity">
                                         <Form.Control required name="city" placeholder="Stadt"
-                                                      value={user.deliveryAddress.city}
+                                                      defaultValue={this.context.user ? this.context.user.deliveryAddress.city : ""}
                                                       onChange={this.onChangeAddress}/>
                                         <Form.Control.Feedback type="invalid">
                                             Bitte geben Sie Ihre Stadt ein.
@@ -192,7 +152,8 @@ class Step1Delivery extends Component {
 
                                     <Form.Group as={Col} controlId="formGridZip">
                                         <Form.Control required type="number" name="plz"
-                                                      placeholder="PLZ" value={user.deliveryAddress.plz}
+                                                      placeholder="PLZ"
+                                                      defaultValue={this.context.user ? this.context.user.deliveryAddress.plz : ""}
                                                       onChange={this.onChangeAddress}/>
                                         <Form.Control.Feedback type="invalid">
                                             Bitte geben Sie Ihre Postleitzahl ein.
@@ -202,7 +163,7 @@ class Step1Delivery extends Component {
 
                                 <Form.Group controlId="formGridState">
                                     <Form.Control required name="state" as="select"
-                                                  value={user.deliveryAddress.state}
+                                                  defaultValue={this.context.user ? this.context.user.deliveryAddress.state : ""}
                                                   onChange={this.onChangeAddress}>
                                         <option>Deutschland</option>
                                         <option>Österreich</option>
@@ -236,9 +197,7 @@ class Step1Delivery extends Component {
                         <Modal.Title>Anmelden</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <LoginForm validated={validated} handleSubmit={this.handleSubmit} logIn={logIn}
-                                   passwordWrong={passwordWrong} togglePasswordWrong={this.togglePasswordWrong}
-                                   toggleUserMissing={this.toggleUserMissing} userMissing={userMissing}/>
+                        <LoginForm handleSuccessfullyLogIn={this.handleSuccessfullyLogIn}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={this.handleClose}>
@@ -252,9 +211,6 @@ class Step1Delivery extends Component {
 }
 
 Step1Delivery.propTypes = {
-    loginUser: PropTypes.func.isRequired,
-    user: PropTypes.any,
-    isLoggedIn: PropTypes.bool.isRequired,
     changeDeliveryAddress: PropTypes.func.isRequired,
 };
 

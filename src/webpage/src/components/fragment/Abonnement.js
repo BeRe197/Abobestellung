@@ -6,9 +6,9 @@ import {Row} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Spinner from "react-bootstrap/Spinner";
-import {updateAboForCustomer} from "../../api/Api";
 import Toast from "react-bootstrap/Toast";
 import {ImCheckmark} from "react-icons/all";
+import {updateAboDocument} from "../../config/firebase";
 
 class Abonnement extends Component {
 
@@ -90,20 +90,20 @@ class Abonnement extends Component {
         }
     }
 
-    handleCancelAbo() {
+    async handleCancelAbo() {
         this.setState({
             cancelAbo: true,
         })
         let newAbo = this.props.abo
         newAbo.endabodate = new Date().toLocaleString().split(",")[0]
 
-        updateAboForCustomer(newAbo).then((erg) => {
-            console.log("Abo storniert")
-            this.setState({
-                cancelAbo: false,
-                showModalCancelAbo: false,
-                showToast: true,
-            })
+        await updateAboDocument(this.props.abo.aboId, newAbo)
+
+        console.log("Abo storniert")
+        this.setState({
+            cancelAbo: false,
+            showModalCancelAbo: false,
+            showToast: true,
         })
     }
 

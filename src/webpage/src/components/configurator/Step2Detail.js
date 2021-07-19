@@ -13,8 +13,10 @@ import Spinner from "react-bootstrap/Spinner";
 import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import AboEdition from "../fragment/AboEdition";
+import {UserContext} from "../../providers/UserProvider";
 
 class Step2Detail extends Component {
+    static contextType = UserContext
 
     constructor(props) {
         super(props);
@@ -46,9 +48,11 @@ class Step2Detail extends Component {
     }
 
     componentDidMount() {
-        if (this.props.user.deliveryAddress.state === "Deutschland") {
+        let state = this.context.user ? this.context.user.deliveryAddress.state : this.props.deliveryAddress.state
+        if (state === "Deutschland") {
+            let plz = this.context.user ? this.context.user.deliveryAddress.plz : this.props.deliveryAddress.plz
             const headers = {'Access-Control-Allow-Origin': '*'}
-            fetch(`http://localhost:4500/functions/getDistanceFromCompanyToDestinationPlz/${this.props.user.deliveryAddress.plz}`, {
+            fetch(`http://localhost:4500/functions/getDistanceFromCompanyToDestinationPlz/${plz}`, {
                 method: 'GET',
                 header: headers
             })
@@ -57,7 +61,7 @@ class Step2Detail extends Component {
                     const calcDistance = json.distance
                     console.log("Got Distance " + calcDistance);
 
-                    fetch(`http://localhost:4500/functions/getLocalVersionsForPlz/${this.props.user.deliveryAddress.plz}`, {
+                    fetch(`http://localhost:4500/functions/getLocalVersionsForPlz/${plz}`, {
                         method: 'GET',
                         header: headers
                     })
@@ -213,8 +217,7 @@ class Step2Detail extends Component {
 
         if (this.props.startDate.setHours(0, 0, 0, 0) >= minDate.setHours(0, 0, 0, 0)) {
             let newAbo = {
-                id: 0,
-                cid: this.props.isLoggedIn ? this.props.user.id : 0,
+                userId: this.context.user ? this.context.user.uid : 0,
                 created: new Date().toLocaleString().split(",")[0],
                 startabodate: this.props.startDate.toLocaleString().split(",")[0],
                 endabodate: "",
@@ -231,7 +234,7 @@ class Step2Detail extends Component {
             }
             this.props.onAboCreate(newAbo)
 
-            if (this.props.isLoggedIn) {
+            if (this.context.user) {
                 this.props.history.push(`/konfigurator/checkout`)
             } else {
                 this.setState({
@@ -460,9 +463,8 @@ Step2Detail.propTypes = {
     handleStartDateChange: PropTypes.func.isRequired,
     hint: PropTypes.string.isRequired,
     handleChangeHint: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired,
-    isLoggedIn: PropTypes.bool.isRequired,
     onAboCreate: PropTypes.func.isRequired,
+    deliveryAddress: PropTypes.object,
 };
 
 export default withRouter(Step2Detail);

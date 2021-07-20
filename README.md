@@ -104,8 +104,7 @@ This folder contains a REST API for the **Abobestellung** Project with the follo
 
 ## GitHub Pages
 [![Build and Deploy to GitHub Pages](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml/badge.svg)](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml)
-> bere197.github.io/abobestellung/
 
-*Not recommended because the REST API is not running/working there*
+[bere197.github.io/abobestellung](https://bere197.github.io/Abobestellung/)
 
-**Please run the entire project locally**
+> :warning: **Please run the entire project locally**: Not recommended to use GitHub Pages because the REST API is not running/working there!

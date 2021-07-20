@@ -8,9 +8,12 @@ This monorepository contains two parts:
 > bere197.github.io/abobestellung/
 
 *Not recommended because the REST API is not running/working there*
+
 **Please run the entire project locally**
-[How to start webpage] (###-How-to-start)
-[How to start rest api] (###-How-to-start)
+
+[How to start webpage](###-How-to-start)
+
+[How to start rest api](###-How-to-start)
 
 ## Abobestellung Webpage
 

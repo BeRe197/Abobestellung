@@ -3,6 +3,11 @@ KFRU Course - Front-End Development
 
 This monorepository contains two parts:
 
+## GitHub Pages
+[![Build and Deploy to GitHub Pages](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml/badge.svg)](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml)
+> bere197.github.io/abobestellung/ 
+*Not recommended because the REST API is not running/working there*
+
 ## Abobestellung Webpage
 
 ```/src/webpage```

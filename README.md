@@ -3,14 +3,6 @@ KFRU Course - Front-End Development
 
 This monorepository contains two parts:
 
-## GitHub Pages
-[![Build and Deploy to GitHub Pages](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml/badge.svg)](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml)
-> bere197.github.io/abobestellung/
-
-*Not recommended because the REST API is not running/working there*
-
-**Please run the entire project locally**
-
 ## Abobestellung Webpage
 
 ```/src/webpage```
@@ -43,8 +35,9 @@ This folder contains a React Webapp for the **Abobestellung** Project with the f
 ### How to start
 
 1. Navigate to the folder
-2. Start the page with `yarn start`
-3. Open in Browser [http://localhost:3000/](http://localhost:3000/)
+2. Install the dependencies `yarn install`
+3. Start the page with `yarn start`
+4. Open in Browser [http://localhost:3000/](http://localhost:3000/)
 
 
 ## REST API
@@ -104,5 +97,15 @@ This folder contains a REST API for the **Abobestellung** Project with the follo
 ### How to start
 
 1. Navigate to the folder
-2. Start the page with `npm start`
-3. The API will run on port `:4500`
+2. Install the dependencies `npm install`
+3. Start the page with `npm start`
+4. The API will run on port `:4500`
+
+
+## GitHub Pages
+[![Build and Deploy to GitHub Pages](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml/badge.svg)](https://github.com/BeRe197/Abobestellung/actions/workflows/build_deploy_GitHub-Pages.yml)
+> bere197.github.io/abobestellung/
+
+*Not recommended because the REST API is not running/working there*
+
+**Please run the entire project locally**

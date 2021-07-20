@@ -1,3 +1,4 @@
+
 # Abobestellung Webpage
 
 ```/src/webpage```
@@ -30,4 +31,7 @@ This folder contains a React Webapp for the **Abobestellung** Project with the f
 ## How to start
 
 1. Navigate to the folder
-2. Start the page with `yarn start`
+2. Install the dependencies `yarn install`
+3. Start the page with `yarn start`
+4. Open in Browser [http://localhost:3000/](http://localhost:3000/)
+

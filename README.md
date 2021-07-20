@@ -48,6 +48,11 @@ This folder contains a React Webapp for the **Abobestellung** Project with the f
 
 This folder contains a REST API for the **Abobestellung** Project with the following functions:
 
+Method | HTTP request | Description
+------------- | ------------- | -------------
+**CalcDistance** | **Get** /functions/getDistanceFromCompanyToDestinationPlz/{customerPLZ} | Calculate the distance between a given PLZ and the company location
+**GetLocalVersions** | **Get** /functions/getLocalVersionsForPlz/{customerPLZ} | Get the available local version for a given PLZ
+
 #### Calculate the distance between a given PLZ and the company location
 
 **GET**

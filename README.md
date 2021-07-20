@@ -44,6 +44,7 @@ This folder contains a React Webapp for the **Abobestellung** Project with the f
 
 1. Navigate to the folder
 2. Start the page with `yarn start`
+3. Open in Browser [http://localhost:3000/](http://localhost:3000/)
 
 
 ## REST API

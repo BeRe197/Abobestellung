@@ -11,10 +11,6 @@ This monorepository contains two parts:
 
 **Please run the entire project locally**
 
-[How to start the webpage](#-How-to-start)
-
-[How to start the rest api](#-How-to-start)
-
 ## Abobestellung Webpage
 
 ```/src/webpage```

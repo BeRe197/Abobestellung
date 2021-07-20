@@ -1,20 +1,20 @@
-# REST API
+## REST API
 
 ```/src/api```
 
-## Functions
+### Functions
 
 This folder contains a REST API for the **Abobestellung** Project with the following functions:
 
-### Calculate the distance between a given PLZ and the company location
+#### Calculate the distance between a given PLZ and the company location
 
 **GET**
 > localhost:4500/functions/getDistanceFromCompanyToDestinationPlz/{customerPLZ}
 
-#### Responses
+##### Responses
 - **200**: Ok
 
-#### Return Object
+##### Return Object
 ```
 {
     "distance": {distance},
@@ -22,15 +22,15 @@ This folder contains a REST API for the **Abobestellung** Project with the follo
 }
 ```
 
-### Get the available local version for a given PLZ
+#### Get the available local version for a given PLZ
 
 **GET**
 > localhost:4500/functions/getLocalVersionsForPlz/{customerPLZ}
 
-#### Responses
+##### Responses
 - **200**: Ok
 
-#### Return Object
+##### Return Object
 *Below will be a full answer. If only one version is available then only one version will be returned*
 ```
 {
@@ -52,7 +52,9 @@ This folder contains a REST API for the **Abobestellung** Project with the follo
 }
 ```
 
-## How to start
+### How to start
 
 1. Navigate to the folder
-2. Start the page with `npm start`
+2. Install the dependencies `npm install`
+3. Start the page with `npm start`
+4. The API will run on port `:4500`

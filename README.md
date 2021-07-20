@@ -53,7 +53,7 @@ Method | HTTP request | Description
 **CalcDistance** | **Get** /functions/getDistanceFromCompanyToDestinationPlz/{customerPLZ} | Calculate the distance between a given PLZ and the company location
 **GetLocalVersions** | **Get** /functions/getLocalVersionsForPlz/{customerPLZ} | Get the available local version for a given PLZ
 
-#### Calculate the distance between a given PLZ and the company location
+#### CalcDistance
 
 **GET**
 > localhost:4500/functions/getDistanceFromCompanyToDestinationPlz/{customerPLZ}
@@ -69,7 +69,7 @@ Method | HTTP request | Description
 }
 ```
 
-#### Get the available local version for a given PLZ
+#### GetLocalVersions
 
 **GET**
 > localhost:4500/functions/getLocalVersionsForPlz/{customerPLZ}

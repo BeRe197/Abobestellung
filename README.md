@@ -105,3 +105,4 @@ This folder contains a REST API for the **Abobestellung** Project with the follo
 
 1. Navigate to the folder
 2. Start the page with `npm start`
+3. The API will run on port `:4500`

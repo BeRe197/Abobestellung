@@ -9,6 +9,7 @@ This folder contains a React Webapp for the **Abobestellung** Project with the f
 * Register a user
   * Email + Password will be registered with Firebase Authorization
   * **Remaining Userdata will be stored within the Firestore (document oriented database)**
+  * Prevent register a user with a duplicate email address
 * Login with Email + Password with Firebase Authorization
 * Abonnement Wizard:
   * Choose printed Newspaper and provide delivery address (after login the delivery address will be prefilled from the user data but the user can change it if needed)
